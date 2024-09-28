@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Book Tour - {{ tour.name }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1>Book Tour: {{ tour.name }}</h1>
+    <p>{{ tour.description }}</p>
+
+    <h3>Booking Details</h3>
+    <form method="POST">
+        <div class="mb-3">
+            <label for="date" class="form-label">Select Date:</label>
+            <input type="date" class="form-control" id="date" name="date" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="people" class="form-label">Number of People:</label>
+            <input type="number" class="form-control" id="people" name="people" min="1" required>
+        </div>
+
+        <h4>Total Price: ${{ tour.price }}</h4>
+
+        <button type="submit" class="btn btn-primary">Confirm Booking</button>
+    </form>
+</div>
+{% endblock %}

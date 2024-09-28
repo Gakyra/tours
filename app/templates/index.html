@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Tours GlobeBook{% endblock %}
+
+{% block content %}
+<div class="text-center my-5">
+    <h1>Welcome to Tours GlobeBook</h1>
+    <p>Your one-stop solution for booking amazing tours!</p>
+    <a href="{{ url_for('register') }}" class="btn btn-primary">Register</a>
+    <a href="{{ url_for('login') }}" class="btn btn-secondary">Login</a>
+</div>
+
+<h2>Available Tours</h2>
+<div class="row">
+    {% for tour in tours %}
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <img src="{{ tour.image_url }}" class="card-img-top" alt="{{ tour.name }}">
+            <div class="card-body">
+                <h5 class="card-title">{{ tour.name }}</h5>
+                <p class="card-text">{{ tour.description }}</p>
+                <p class="card-text"><strong>Price: ${{ tour.price }}</strong></p>
+                <a href="{{ url_for('book_tour', tour_id=tour.id) }}" class="btn btn-primary">Book Now</a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

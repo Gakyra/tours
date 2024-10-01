@@ -1,4 +1,5 @@
 import os
+from datetime import timedelta
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -9,17 +10,13 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     MIGRATION_DIR = os.path.join(basedir, 'migrations')
     DEBUG = False
-
-class DevelopmentConfig(Config):
-    DEBUG = True
-    SQLALCHEMY_ECHO = True
-
-class ProductionConfig(Config):
-    DEBUG = False
+    CACHE_TYPE = 'SimpleCache'
+    CACHE_DEFAULT_TIMEOUT = 300
+    PERMANENT_SESSION_LIFETIME = timedelta(days=1)
 
 def get_config(env='development'):
     config_classes = {
-        'development': DevelopmentConfig,
-        'production': ProductionConfig
+        'development': Config,
+        'production': Config
     }
-    return config_classes.get(env, DevelopmentConfig)
+    return config_classes.get(env, Config)

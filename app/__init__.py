@@ -5,16 +5,27 @@ from flask_login import LoginManager
 from flask_caching import Cache
 from datetime import timedelta
 
-__all__ = ('app',)
+__all__ = ('app', 'db')
 
 app = Flask(__name__)
+
+
 app.config['SECRET_KEY'] = '<KEY>'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite3'
 app.config['CACHE_TYPE'] = 'SimpleCache'
 app.config['CACHE_DEFAULT_TIMEOUT'] = 300
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=1)
 
+# Ініціалізація
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 login_manager = LoginManager(app)
 cache = Cache(app)
+
+from app.models import User
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
+from app.routes import *

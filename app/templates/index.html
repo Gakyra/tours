@@ -1,29 +1,47 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="uk"> <!-- Визначення мови документу як української -->
+<head>
+    <meta charset="UTF-8"> <!-- Визначення кодування документу для правильного відображення тексту -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Налаштування адаптивності для мобільних пристроїв -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}"> <!-- Підключення стилів Bootstrap -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}"> <!-- Підключення кастомних стилів -->
+    <title>Tours GlobeBook</title> <!-- Заголовок сторінки -->
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light"> <!-- Навігаційна панель -->
+        <a class="navbar-brand" href="{{ url_for('index') }}">Tours GlobeBook</a> <!-- Назва сайту з посиланням на головну -->
+        <div class="collapse navbar-collapse" id="navbarNav"> <!-- Розгортка навігаційного меню -->
+            <ul class="navbar-nav"> <!-- Список навігаційних пунктів -->
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('index') }}">Головна</a></li> <!-- Посилання на головну сторінку -->
+                {% if current_user.is_authenticated %} <!-- Перевірка, чи користувач авторизований -->
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('profile') }}">Профіль</a></li> <!-- Посилання на профіль -->
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('logout') }}">Вихід</a></li> <!-- Посилання на вихід -->
+                {% else %} <!-- Якщо користувач не авторизований -->
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('login') }}">Вхід</a></li> <!-- Посилання на сторінку входу -->
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('register') }}">Реєстрація</a></li> <!-- Посилання на сторінку реєстрації -->
+                {% endif %} <!-- Закриття умови перевірки авторизації -->
+            </ul>
+        </div>
+    </nav>
 
-{% block title %}Home - Tours GlobeBook{% endblock %}
-
-{% block content %}
-<div class="text-center my-5">
-    <h1>Welcome to Tours GlobeBook</h1>
-    <p>Your one-stop solution for booking amazing tours!</p>
-    <a href="{{ url_for('register') }}" class="btn btn-primary">Register</a>
-    <a href="{{ url_for('login') }}" class="btn btn-secondary">Login</a>
-</div>
-
-<h2>Available Tours</h2>
-<div class="row">
-    {% for tour in tours %}
-    <div class="col-md-4">
-        <div class="card mb-4">
-            <img src="{{ tour.image_url }}" class="card-img-top" alt="{{ tour.name }}">
-            <div class="card-body">
-                <h5 class="card-title">{{ tour.name }}</h5>
-                <p class="card-text">{{ tour.description }}</p>
-                <p class="card-text"><strong>Price: ${{ tour.price }}</strong></p>
-                <a href="{{ url_for('book_tour', tour_id=tour.id) }}" class="btn btn-primary">Book Now</a>
-            </div>
+    <div class="container mt-4"> <!-- Контейнер для основного контенту з відступом зверху -->
+        <h1>Доступні тури</h1> <!-- Заголовок для секції з турами -->
+        <div class="row"> <!-- Рядок для відображення турів -->
+            {% for tour in tours %} <!-- Перебір списку турів -->
+                <div class="col-md-4"> <!-- Стовпець для кожного туру, три тури в ряд -->
+                    <div class="card mb-4"> <!-- Карточка для туру з нижнім відступом -->
+                        <div class="card-body"> <!-- Тіло карточки -->
+                            <h5 class="card-title">{{ tour.name }}</h5> <!-- Заголовок карточки з назвою туру -->
+                            <p class="card-text">{{ tour.description }}</p> <!-- Опис туру -->
+                            <p class="card-text"><strong>Ціна:</strong> {{ tour.price }} ₴</p> <!-- Ціна туру -->
+                            <a href="{{ url_for('book_tour', id=tour.id) }}" class="btn btn-primary">Забронювати</a> <!-- Кнопка для бронювання туру -->
+                        </div>
+                    </div>
+                </div>
+            {% endfor %} <!-- Закриття циклу перебору турів -->
         </div>
     </div>
-    {% endfor %}
-</div>
-{% endblock %}
+
+    <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script> <!-- Підключення JavaScript Bootstrap -->
+</body>
+</html>

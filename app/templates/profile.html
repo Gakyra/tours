@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="uk"> <!-- Визначення мови документу як української -->
+<head>
+    <meta charset="UTF-8"> <!-- Визначення кодування документу для правильного відображення тексту -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Налаштування адаптивності для мобільних пристроїв -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}"> <!-- Підключення стилів Bootstrap -->
+    <title>Профіль</title> <!-- Заголовок сторінки -->
+</head>
+<body>
+    <div class="container mt-4"> <!-- Контейнер для основного контенту з відступом зверху -->
+        <h1>Профіль користувача</h1> <!-- Заголовок для секції профілю -->
+        <h2>Ваші бронювання</h2> <!-- Заголовок для секції з бронюваннями -->
+        <table class="table"> <!-- Таблиця для відображення бронювань -->
+            <thead> <!-- Заголовок таблиці -->
+                <tr>
+                    <th>Тур</th> <!-- Назва туру -->
+                    <th>Дата</th> <!-- Дата бронювання -->
+                    <th>Кількість людей</th> <!-- Кількість заброньованих місць -->
+                </tr>
+            </thead>
+            <tbody> <!-- Тіло таблиці -->
+                {% for booking in bookings %} <!-- Перебір списку бронювань -->
+                    <tr>
+                        <td>{{ booking.tour.name }}</td> <!-- Назва туру, до якого зроблено бронювання -->
+                        <td>{{ booking.date }}</td> <!-- Дата бронювання -->
+                        <td>{{ booking.number_of_people }}</td> <!-- Кількість людей у бронюванні -->
+                    </tr>
+                {% endfor %} <!-- Закриття циклу перебору бронювань -->
+            </tbody>
+        </table>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script> <!-- Підключення JavaScript Bootstrap -->
+</body>
+</html>

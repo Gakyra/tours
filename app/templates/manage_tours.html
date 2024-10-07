@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<!--suppress ALL -->
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <title>Керування турами</title>
+</head>
+<body>
+    <div class="container mt-4">
+        <h1>Керування турами</h1>
+        <form method="POST">
+            {{ form.hidden_tag() }}
+            <div class="form-group">
+                <label for="name">Назва туру</label>
+                {{ form.name(class="form-control") }}
+            </div>
+            <div class="form-group">
+                <label for="description">Опис туру</label>
+                {{ form.description(class="form-control") }}
+            </div>
+            <div class="form-group">
+                <label for="price">Ціна</label>
+                {{ form.price(class="form-control") }}
+            </div>
+            <div class="form-group">
+                <label for="date">Дата</label>
+                {{ form.date(class="form-control") }}
+            </div>
+            <div class="form-group">
+                <label for="available_spots">Доступні місця</label>
+                {{ form.available_spots(class="form-control") }}
+            </div>
+            <button type="submit" class="btn btn-primary">Додати тур</button>
+        </form>
+
+        <h2 class="mt-4">Список турів</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Назва</th>
+                    <th>Опис</th>
+                    <th>Ціна</th>
+                    <th>Дата</th>
+                    <th>Доступні місця</th>
+                    <th>Дії</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for tour in tours %}
+                    <tr>
+                        <td>{{ tour.name }}</td>
+                        <td>{{ tour.description }}</td>
+                        <td>{{ tour.price }} ₴</td>
+                        <td>{{ tour.date.strftime('%Y-%m-%d') }}</td>
+                        <td>{{ tour.available_spots }}</td>
+                        <td>
+                            <a href="{{ url_for('edit_tour', id=tour.id) }}" class="btn btn-warning">Редагувати</a>
+                            <form action="{{ url_for('delete_tour', id=tour.id) }}" method="POST" style="display:inline;">
+                                <button type="submit" class="btn btn-danger">Видалити</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+</body>
+</html>

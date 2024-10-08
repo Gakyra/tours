@@ -3,12 +3,16 @@ from app import db
 
 # Модель користувача
 class User(db.Model, UserMixin):
+    __tablename__ = 'user'
+
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(64), unique=True, nullable=False)
-    password = db.Column(db.String(128), nullable=False)
+    username = db.Column(db.String(100), unique=True, nullable=False)
+    password = db.Column(db.String(200), nullable=False)  # Хешований пароль
+    email = db.Column(db.String(120), unique=True, nullable=False)
 
 # Модель туру
 class Tour(db.Model):
+    __tablename__ = 'tour'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(80), nullable=False)
     description = db.Column(db.Text, nullable=False)
@@ -18,6 +22,7 @@ class Tour(db.Model):
 
 # Модель бронювання
 class Booking(db.Model):
+    __tablename__ = 'booking'
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     tour_id = db.Column(db.Integer, db.ForeignKey('tour.id'), nullable=False)

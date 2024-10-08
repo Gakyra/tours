@@ -1,28 +1,9 @@
-from flask import render_template, redirect, url_for, request, jsonify, flash
+from flask import render_template, redirect, url_for, request, jsonify, flash, current_app
 from flask_login import login_user, logout_user, current_user, login_required
-from app import app, db
+from app import db, app  # Імпортуємо app разом з db
 from app.models import User, Tour, Booking
 from datetime import datetime
 from app.forms import RegistrationForm, LoginForm, BookingForm, TourForm
-
-__all__ = (
-    'index',
-    'register',
-    'login',
-    'logout',
-    'tour_details',
-    'tour_availability',
-    'upcoming_tours',
-    'tour_discount',
-    'calculate_discount',
-    'get_upcoming_tours',
-    'is_tour_available',
-    'get_tour_details',
-    'book_tour',
-    'manage_tours',
-    'edit_tour',
-    'delete_tour'
-)
 
 # Головна сторінка
 @app.route('/')
@@ -120,7 +101,7 @@ def book_tour(tour_id):
     booking = Booking(
         user_id=current_user.id,
         tour_id=tour_id,
-        people=people,
+        number_of_people=people,
         date=datetime.strptime(date, '%Y-%m-%d'),
         total_price=total_price
     )

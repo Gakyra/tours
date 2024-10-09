@@ -1,0 +1,46 @@
+
+body {
+    background-color: #f0f4f8;
+    font-family: 'Arial', sans-serif;
+}
+
+
+h1, h2 {
+    color: #343a40;
+    text-align: center;
+}
+
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+
+.btn {
+    border-radius: 20px;
+    padding: 10px 20px;
+    font-weight: bold;
+}
+
+
+.table {
+    margin-top: 20px;
+    border-radius: 8px;
+    overflow: hidden; /
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.table th {
+    background-color: #007bff;
+    color: white;
+}
+
+.table td {
+    background-color: #ffffff;
+}
+
+
+.btn-primary:hover, .btn-warning:hover, .btn-danger:hover {
+    transform: scale(1.05);
+    transition: transform 0.2s;
+}

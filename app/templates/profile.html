@@ -1,35 +1,35 @@
 <!DOCTYPE html>
-<html lang="uk"> <!-- Визначення мови документу як української -->
+<html lang="uk">
 <head>
-    <meta charset="UTF-8"> <!-- Визначення кодування документу для правильного відображення тексту -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Налаштування адаптивності для мобільних пристроїв -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}"> <!-- Підключення стилів Bootstrap -->
-    <title>Профіль</title> <!-- Заголовок сторінки -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <title>Профіль</title>
 </head>
 <body>
-    <div class="container mt-4"> <!-- Контейнер для основного контенту з відступом зверху -->
-        <h1>Профіль користувача</h1> <!-- Заголовок для секції профілю -->
-        <h2>Ваші бронювання</h2> <!-- Заголовок для секції з бронюваннями -->
-        <table class="table"> <!-- Таблиця для відображення бронювань -->
-            <thead> <!-- Заголовок таблиці -->
+    <div class="container mt-4">
+        <h1>Профіль користувача</h1>
+        <h2>Ваші бронювання</h2>
+        <table class="table">
+            <thead>
                 <tr>
-                    <th>Тур</th> <!-- Назва туру -->
-                    <th>Дата</th> <!-- Дата бронювання -->
-                    <th>Кількість людей</th> <!-- Кількість заброньованих місць -->
+                    <th>Тур</th>
+                    <th>Дата</th>
+                    <th>Кількість людей</th>
                 </tr>
             </thead>
-            <tbody> <!-- Тіло таблиці -->
-                {% for booking in bookings %} <!-- Перебір списку бронювань -->
+            <tbody>
+                {% for booking in bookings %}
                     <tr>
-                        <td>{{ booking.tour.name }}</td> <!-- Назва туру, до якого зроблено бронювання -->
-                        <td>{{ booking.date }}</td> <!-- Дата бронювання -->
-                        <td>{{ booking.number_of_people }}</td> <!-- Кількість людей у бронюванні -->
+                        <td>{{ booking.tour.name }}</td>
+                        <td>{{ booking.date }}</td>
+                        <td>{{ booking.number_of_people }}</td>
                     </tr>
-                {% endfor %} <!-- Закриття циклу перебору бронювань -->
+                {% endfor %}
             </tbody>
         </table>
     </div>
 
-    <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script> <!-- Підключення JavaScript Bootstrap -->
+    <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
 </body>
 </html>

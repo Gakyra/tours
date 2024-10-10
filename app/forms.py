@@ -48,10 +48,12 @@ class LoginForm(FlaskForm):
         if user and user.password != password.data:
             raise ValidationError('Incorrect password.')
 
+
 class BookingForm(FlaskForm):
     date = DateTimeField('Date', validators=[DataRequired()])
     number_of_people = IntegerField('Number of People', validators=[DataRequired()])
     submit = SubmitField('Book Now')
+
     def validate_number_of_people(self, number_of_people):
         if number_of_people.data <= 0:
             raise ValidationError('Number of people must be greater than 0.')
@@ -59,6 +61,7 @@ class BookingForm(FlaskForm):
     def validate_date(self, date):
         if date.data < datetime.now():
             raise ValidationError('Booking date must be in the future.')
+
 
 class TourForm(FlaskForm):
     name = StringField('Tour Name', validators=[DataRequired(), Length(max=80)])
@@ -75,4 +78,3 @@ class TourForm(FlaskForm):
     def validate_date(self, date):
         if date.data < datetime.now():
             raise ValidationError('The tour date must be in the future.')
-

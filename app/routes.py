@@ -4,6 +4,7 @@ from app import db, app
 from app.models import User, Tour, Booking
 from datetime import datetime
 from app.forms import RegistrationForm, LoginForm, BookingForm, TourForm
+from app.views import get_tour_details, is_tour_available, get_upcoming_tours, calculate_discount
 
 # Головна сторінка
 @app.route('/')
@@ -12,11 +13,12 @@ def index():
     return render_template('index.html', tours=tours)
 
 # Реєстрація
+# Реєстрація
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     form = RegistrationForm()
     if form.validate_on_submit():
-        user = User(username=form.username.data, password=form.password.data)
+        user = User(username=form.username.data, email=form.email.data, password=form.password.data)
         db.session.add(user)
         db.session.commit()
         login_user(user)
@@ -24,10 +26,11 @@ def register():
         return redirect(url_for('index'))
     return render_template('register.html', form=form)
 
+
 # Увійти
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    form = LoginForm()  # Додали форму для логіну
+    form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
         if user and user.password == form.password.data:
@@ -156,32 +159,3 @@ def delete_tour(id):
     flash('Tour successfully deleted!', 'success')
     return redirect(url_for('manage_tours'))
 
-# Функції
-def calculate_discount(tour_id, discount_percentage):
-    tour = Tour.query.get(tour_id)
-    if tour:
-        discounted_price = tour.price - (tour.price * (discount_percentage / 100))
-        return discounted_price
-    return None
-
-def get_upcoming_tours():
-    current_date = datetime.now()
-    upcoming_tours = Tour.query.filter(Tour.date >= current_date).all()
-    return upcoming_tours
-
-def is_tour_available(tour_id):
-    tour = Tour.query.get(tour_id)
-    if tour and tour.date >= datetime.now():
-        return True
-    return False
-
-def get_tour_details(tour_id):
-    tour = Tour.query.get(tour_id)
-    if tour:
-        return {
-            'name': tour.name,
-            'description': tour.description,
-            'price': tour.price,
-            'date': tour.date.strftime('%Y-%m-%d'),
-        }
-    return None

@@ -1,0 +1,16 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f8f9fa;
+}
+
+.container {
+    margin-top: 20px;
+}
+
+.btn {
+    margin: 5px;
+}
+
+.form-control {
+    margin-bottom: 10px;
+}

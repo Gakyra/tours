@@ -1,8 +1,8 @@
-"""Add Tour model
+"""Initial migration
 
-Revision ID: db7a23c985ff
-Revises: 7efc33aae20d
-Create Date: 2024-10-08 23:07:53.678416
+Revision ID: 29362c004145
+Revises: 
+Create Date: 2024-10-10 18:23:37.369189
 
 """
 from alembic import op
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'db7a23c985ff'
-down_revision = '7efc33aae20d'
+revision = '29362c004145'
+down_revision = None
 branch_labels = None
 depends_on = None
 
@@ -29,9 +29,11 @@ def upgrade():
     )
     op.create_table('user',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('username', sa.String(length=64), nullable=False),
-    sa.Column('password', sa.String(length=128), nullable=False),
+    sa.Column('username', sa.String(length=100), nullable=False),
+    sa.Column('password', sa.String(length=200), nullable=False),
+    sa.Column('email', sa.String(length=120), nullable=False),
     sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('email'),
     sa.UniqueConstraint('username')
     )
     op.create_table('booking',

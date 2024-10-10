@@ -1,44 +1,45 @@
 <!DOCTYPE html>
-<html lang="uk"> <!-- Визначення мови документу як української -->
+<html lang="uk">
 <head>
-    <meta charset="UTF-8"> <!-- Визначення кодування документу для правильного відображення тексту -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Налаштування адаптивності для мобільних пристроїв -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}"> <!-- Підключення стилів Bootstrap -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}"> <!-- Підключення кастомних стилів -->
-    <title>Tours GlobeBook</title> <!-- Заголовок сторінки -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+
+    <title>Tours GlobeBook</title>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light"> <!-- Навігаційна панель -->
-        <a class="navbar-brand" href="{{ url_for('index') }}">Tours GlobeBook</a> <!-- Назва сайту з посиланням на головну -->
-        <div class="collapse navbar-collapse" id="navbarNav"> <!-- Розгортка навігаційного меню -->
-            <ul class="navbar-nav"> <!-- Список навігаційних пунктів -->
-                <li class="nav-item"><a class="nav-link" href="{{ url_for('index') }}">Головна</a></li> <!-- Посилання на головну сторінку -->
-                {% if current_user.is_authenticated %} <!-- Перевірка, чи користувач авторизований -->
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('profile') }}">Профіль</a></li> <!-- Посилання на профіль -->
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('logout') }}">Вихід</a></li> <!-- Посилання на вихід -->
-                {% else %} <!-- Якщо користувач не авторизований -->
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('login') }}">Вхід</a></li> <!-- Посилання на сторінку входу -->
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('register') }}">Реєстрація</a></li> <!-- Посилання на сторінку реєстрації -->
-                {% endif %} <!-- Закриття умови перевірки авторизації -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="{{ url_for('index') }}">Tours GlobeBook</a>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('index') }}">Головна</a></li>
+                {% if current_user.is_authenticated %}
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('profile') }}">Профіль</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('logout') }}">Вихід</a></li>
+                {% else %}
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('login') }}">Вхід</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('register') }}">Реєстрація</a></li>
+                {% endif %}
             </ul>
         </div>
     </nav>
 
-    <div class="container mt-4"> <!-- Контейнер для основного контенту з відступом зверху -->
-        <h1>Доступні тури</h1> <!-- Заголовок для секції з турами -->
-        <div class="row"> <!-- Рядок для відображення турів -->
-            {% for tour in tours %} <!-- Перебір списку турів -->
-                <div class="col-md-4"> <!-- Стовпець для кожного туру, три тури в ряд -->
-                    <div class="card mb-4"> <!-- Карточка для туру з нижнім відступом -->
-                        <div class="card-body"> <!-- Тіло карточки -->
-                            <h5 class="card-title">{{ tour.name }}</h5> <!-- Заголовок карточки з назвою туру -->
-                            <p class="card-text">{{ tour.description }}</p> <!-- Опис туру -->
-                            <p class="card-text"><strong>Ціна:</strong> {{ tour.price }} ₴</p> <!-- Ціна туру -->
-                            <a href="{{ url_for('book_tour', id=tour.id) }}" class="btn btn-primary">Забронювати</a> <!-- Кнопка для бронювання туру -->
+    <div class="container mt-4">
+        <h1>Доступні тури</h1>
+        <div class="row">
+            {% for tour in tours %}
+                <div class="col-md-4">
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ tour.name }}</h5>
+                            <p class="card-text">{{ tour.description }}</p>
+                            <p class="card-text"><strong>Ціна:</strong> {{ tour.price }} ₴</p>
+                            <a href="{{ url_for('book_tour', id=tour.id) }}" class="btn btn-primary">Забронювати</a>
                         </div>
                     </div>
                 </div>
-            {% endfor %} <!-- Закриття циклу перебору турів -->
+            {% endfor %}
         </div>
     </div>
 

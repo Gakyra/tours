@@ -13,9 +13,10 @@ migrate = Migrate(app, db)
 login_manager = LoginManager(app)
 cache = Cache(app)
 
+from app.models import User
+
 @login_manager.user_loader
 def load_user(user_id):
-    from app.models import User
     return User.query.get(int(user_id))
 
-from app import routes
+from app.routes import *

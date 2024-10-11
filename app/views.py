@@ -11,6 +11,7 @@ def calculate_discount(tour_id, discount_percentage):
 def get_upcoming_tours():
     current_date = datetime.now()
     upcoming_tours = Tour.query.filter(Tour.date >= current_date).all()
+    print(f"Upcoming tours: {upcoming_tours}")
     return upcoming_tours
 
 def is_tour_available(tour_id):

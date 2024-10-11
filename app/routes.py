@@ -1,6 +1,6 @@
-from flask import render_template, redirect, url_for, request, jsonify, flash, current_app
+from flask import render_template, redirect, url_for, request, jsonify, flash
 from flask_login import login_user, logout_user, current_user, login_required
-from app import db, app
+from app import app, db
 from app.models import User, Tour, Booking
 from datetime import datetime
 from app.forms import RegistrationForm, LoginForm, BookingForm, TourForm
@@ -9,10 +9,24 @@ from app.views import get_tour_details, is_tour_available, get_upcoming_tours, c
 # Головна сторінка
 @app.route('/')
 def index():
-    tours = Tour.query.all()
-    return render_template('index.html', tours=tours)
+    tours = get_upcoming_tours()
+    discount_percentage = 10
+    tour_data = []
 
-# Реєстрація
+    for tour in tours:
+        tour_info = {
+            'id': tour.id,
+            'name': tour.name,
+            'description': tour.description,
+            'price': tour.price,
+            'discounted_price': calculate_discount(tour.id, discount_percentage),
+            'is_available': is_tour_available(tour.id),
+            'date': tour.date.strftime('%Y-%m-%d')
+        }
+        tour_data.append(tour_info)
+
+    return render_template('index.html', tours=tour_data)
+
 # Реєстрація
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -22,10 +36,9 @@ def register():
         db.session.add(user)
         db.session.commit()
         login_user(user)
-        flash('You have registered successfully!', 'success')
+        flash('Ви успішно зареєструвались!', 'success')
         return redirect(url_for('index'))
     return render_template('register.html', form=form)
-
 
 # Увійти
 @app.route('/login', methods=['GET', 'POST'])
@@ -35,16 +48,16 @@ def login():
         user = User.query.filter_by(username=form.username.data).first()
         if user and user.password == form.password.data:
             login_user(user)
-            flash('Login successful!', 'success')
+            flash('Увійшли успішно!', 'success')
             return redirect(url_for('index'))
-        flash('Login failed. Check username and password.', 'danger')
+        flash('Не вдалося увійти. Перевірте ім’я користувача та пароль.', 'danger')
     return render_template('login.html', form=form)
 
 # Вихід
 @app.route('/logout')
 def logout():
     logout_user()
-    flash('You have been logged out!', 'success')
+    flash('Ви вийшли з системи!', 'success')
     return redirect(url_for('index'))
 
 # Деталі туру
@@ -53,7 +66,7 @@ def tour_details(tour_id):
     details = get_tour_details(tour_id)
     if details:
         return jsonify(details)
-    return jsonify({"error": "Tour not found"}), 404
+    return jsonify({"error": "Тур не знайдено"}), 404
 
 # Доступність туру
 @app.route('/tour/<int:tour_id>/availability', methods=['GET'])
@@ -72,7 +85,7 @@ def upcoming_tours():
             'price': tour.price,
             'date': tour.date.strftime('%Y-%m-%d'),
         } for tour in tours])
-    return jsonify({"message": "No upcoming tours available"})
+    return jsonify({"message": "Немає доступних наступних турів"})
 
 # Знижка на тур
 @app.route('/tour/<int:tour_id>/discount', methods=['POST'])
@@ -80,12 +93,12 @@ def tour_discount(tour_id):
     data = request.get_json()
     discount_percentage = data.get('discount_percentage')
     if discount_percentage is None:
-        return jsonify({"error": "Discount percentage not provided"}), 400
+        return jsonify({"error": "Процент знижки не вказано"}), 400
 
     discounted_price = calculate_discount(tour_id, discount_percentage)
     if discounted_price is not None:
         return jsonify({"discounted_price": discounted_price})
-    return jsonify({"error": "Tour not found"}), 404
+    return jsonify({"error": "Тур не знайдено"}), 404
 
 # Бронювання туру
 @app.route('/tour/<int:tour_id>/book', methods=['POST'])
@@ -93,7 +106,7 @@ def tour_discount(tour_id):
 def book_tour(tour_id):
     tour = Tour.query.get(tour_id)
     if not tour:
-        return jsonify({"error": "Tour not found"}), 404
+        return jsonify({"error": "Тур не знайдено"}), 404
 
     date = request.form.get('date')
     people = int(request.form.get('people'))
@@ -112,8 +125,8 @@ def book_tour(tour_id):
     db.session.add(booking)
     db.session.commit()
 
-    flash('Booking successful!', 'success')
-    return jsonify({"message": "Booking successful", "total_price": total_price})
+    flash('Бронювання успішне!', 'success')
+    return jsonify({"message": "Бронювання успішне", "total_price": total_price})
 
 # Керування турами
 @app.route('/manage_tours', methods=['GET', 'POST'])
@@ -130,7 +143,7 @@ def manage_tours():
         )
         db.session.add(new_tour)
         db.session.commit()
-        flash('Tour added successfully!', 'success')
+        flash('Тур успішно додано!', 'success')
         return redirect(url_for('manage_tours'))
 
     tours = Tour.query.all()
@@ -145,7 +158,7 @@ def edit_tour(id):
     if form.validate_on_submit():
         form.populate_obj(tour)
         db.session.commit()
-        flash('Tour successfully updated!', 'success')
+        flash('Тур успішно оновлено!', 'success')
         return redirect(url_for('manage_tours'))
     return render_template('edit_tour.html', form=form, tour=tour)
 
@@ -156,6 +169,11 @@ def delete_tour(id):
     tour = Tour.query.get_or_404(id)
     db.session.delete(tour)
     db.session.commit()
-    flash('Tour successfully deleted!', 'success')
+    flash('Тур успішно видалено!', 'success')
     return redirect(url_for('manage_tours'))
 
+# Профіль користувача
+@app.route('/profile')
+@login_required
+def profile():
+    return render_template('profile.html')

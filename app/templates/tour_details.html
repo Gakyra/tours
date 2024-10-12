@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Edit Tour: {{ tour.name }}</h1>
+<form method="POST">
+    {{ form.hidden_tag() }}
+    {{ form.name.label(class="form-label") }} {{ form.name(class="form-control") }}
+    {{ form.description.label(class="form-label") }} {{ form.description(class="form-control", rows=4) }}
+    {{ form.price.label(class="form-label") }} {{ form.price(class="form-control") }}
+    {{ form.date.label(class="form-label") }} {{ form.date(class="form-control") }}
+    {{ form.submit(class="btn btn-primary") }}
+</form>
+<a href="{{ url_for('manage_tours') }}">Back to tours</a>
+{% endblock %}

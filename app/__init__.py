@@ -11,6 +11,8 @@ app.config.from_object(Config)
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 login_manager = LoginManager(app)
+login_manager.login_view = 'login'
+login_manager.login_message_category = 'info'
 cache = Cache(app)
 
 from app.models import User
@@ -20,3 +22,4 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 from app.routes import *
+

@@ -45,12 +45,13 @@ def register():
 def login():
     form = LoginForm()
     if form.validate_on_submit():
-        user = User.query.filter_by(username=form.username.data).first()
-        if user and user.password == form.password.data:
+        user = User.query.filter_by(email=form.email.data).first()
+        if user and user.check_password(form.password.data):
             login_user(user)
-            flash('Увійшли успішно!', 'success')
-            return redirect(url_for('index'))
-        flash('Не вдалося увійти. Перевірте ім’я користувача та пароль.', 'danger')
+            flash('You have been logged in!', 'success')
+            return redirect(url_for('profile'))
+        else:
+            flash('Login Unsuccessful. Please check email and password', 'danger')
     return render_template('login.html', form=form)
 
 # Вихід
@@ -65,7 +66,7 @@ def logout():
 def tour_details(tour_id):
     details = get_tour_details(tour_id)
     if details:
-        return jsonify(details)
+        return render_template('tour_details.html', tour=details)
     return jsonify({"error": "Тур не знайдено"}), 404
 
 # Доступність туру
@@ -101,32 +102,33 @@ def tour_discount(tour_id):
     return jsonify({"error": "Тур не знайдено"}), 404
 
 # Бронювання туру
-@app.route('/tour/<int:tour_id>/book', methods=['POST'])
+@app.route('/tour/<int:tour_id>/book', methods=['GET', 'POST'])
 @login_required
 def book_tour(tour_id):
-    tour = Tour.query.get(tour_id)
-    if not tour:
-        return jsonify({"error": "Тур не знайдено"}), 404
+    tour = Tour.query.get_or_404(tour_id)
+    form = BookingForm()
+    if form.validate_on_submit():
+        date = form.date.data
+        people = form.people.data
 
-    date = request.form.get('date')
-    people = int(request.form.get('people'))
+        # Розрахунок загальної ціни
+        total_price = tour.price * people
 
-    # Розрахунок загальної ціни
-    total_price = tour.price * people
+        booking = Booking(
+            user_id=current_user.id,
+            tour_id=tour_id,
+            number_of_people=people,
+            date=date,
+            total_price=total_price
+        )
 
-    booking = Booking(
-        user_id=current_user.id,
-        tour_id=tour_id,
-        number_of_people=people,
-        date=datetime.strptime(date, '%Y-%m-%d'),
-        total_price=total_price
-    )
+        db.session.add(booking)
+        db.session.commit()
 
-    db.session.add(booking)
-    db.session.commit()
+        flash('Бронювання успішне!', 'success')
+        return redirect(url_for('index'))
 
-    flash('Бронювання успішне!', 'success')
-    return jsonify({"message": "Бронювання успішне", "total_price": total_price})
+    return render_template('book_tour.html', form=form, tour=tour)
 
 # Керування турами
 @app.route('/manage_tours', methods=['GET', 'POST'])
@@ -138,8 +140,7 @@ def manage_tours():
             name=form.name.data,
             description=form.description.data,
             price=form.price.data,
-            date=form.date.data,
-            available_spots=form.available_spots.data
+            date=form.date.data
         )
         db.session.add(new_tour)
         db.session.commit()
@@ -150,23 +151,28 @@ def manage_tours():
     return render_template('manage_tours.html', form=form, tours=tours)
 
 # Редагування туру
-@app.route('/edit_tour/<int:id>', methods=['GET', 'POST'])
+@app.route('/tour/<int:tour_id>/edit', methods=['GET', 'POST'])
 @login_required
-def edit_tour(id):
-    tour = Tour.query.get_or_404(id)
+def edit_tour(tour_id):
+    tour = Tour.query.get_or_404(tour_id)
     form = TourForm(obj=tour)
+
     if form.validate_on_submit():
-        form.populate_obj(tour)
+        tour.name = form.name.data
+        tour.description = form.description.data
+        tour.price = form.price.data
+        tour.date = form.date.data
         db.session.commit()
         flash('Тур успішно оновлено!', 'success')
         return redirect(url_for('manage_tours'))
+
     return render_template('edit_tour.html', form=form, tour=tour)
 
 # Видалення туру
-@app.route('/delete_tour/<int:id>', methods=['POST'])
+@app.route('/tour/<int:tour_id>/delete', methods=['POST'])
 @login_required
-def delete_tour(id):
-    tour = Tour.query.get_or_404(id)
+def delete_tour(tour_id):
+    tour = Tour.query.get_or_404(tour_id)
     db.session.delete(tour)
     db.session.commit()
     flash('Тур успішно видалено!', 'success')

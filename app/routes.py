@@ -46,28 +46,36 @@ def index():
 # Реєстрація
 @app.route('/register', methods=['GET', 'POST'])
 def register():
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+
     form = RegistrationForm()
     if form.validate_on_submit():
-        user = User(username=form.username.data, email=form.email.data, password=form.password.data)
+        user = User(username=form.username.data, email=form.email.data)
+        user.set_password(form.password.data)  # Хешування пароля
         db.session.add(user)
         db.session.commit()
-        login_user(user)
-        flash('Ви успішно зареєструвались!', 'success')
-        return redirect(url_for('index'))
+        flash('Акаунт успішно створено! Тепер ви можете увійти.', 'success')
+        return redirect(url_for('login'))
+
     return render_template('register.html', form=form)
 
 # Увійти
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+
     form = LoginForm()
     if form.validate_on_submit():
-        user = User.query.filter_by(email=form.email.data).first()
+        user = User.query.filter_by(username=form.username.data).first()
         if user and user.check_password(form.password.data):
             login_user(user)
-            flash('You have been logged in!', 'success')
-            return redirect(url_for('profile'))
+            flash('Ви успішно увійшли!', 'success')
+            return redirect(url_for('index'))
         else:
-            flash('Login Unsuccessful. Please check email and password', 'danger')
+            flash('Невірне ім\'я користувача або пароль', 'danger')
+
     return render_template('login.html', form=form)
 
 # Вихід
@@ -123,9 +131,14 @@ def tour_discount(tour_id):
 def book_tour(tour_id):
     tour = Tour.query.get_or_404(tour_id)
     form = BookingForm()
+
     if form.validate_on_submit():
         date = form.date.data
-        people = form.people.data
+        people = form.number_of_people.data
+
+        if not tour.is_available(people):
+            flash('Недостатньо вільних місць для бронювання!', 'danger')
+            return redirect(url_for('book_tour', tour_id=tour_id))
 
         # Розрахунок загальної ціни
         total_price = tour.price * people
@@ -138,6 +151,7 @@ def book_tour(tour_id):
             total_price=total_price
         )
 
+        tour.available_spots -= people  # Оновлення кількості доступних місць
         db.session.add(booking)
         db.session.commit()
 
@@ -156,7 +170,8 @@ def manage_tours():
             name=form.name.data,
             description=form.description.data,
             price=form.price.data,
-            date=form.date.data
+            date=form.date.data,
+            available_spots=form.available_spots.data  # Додано
         )
         db.session.add(new_tour)
         db.session.commit()
@@ -178,6 +193,7 @@ def edit_tour(tour_id):
         tour.description = form.description.data
         tour.price = form.price.data
         tour.date = form.date.data
+        tour.available_spots = form.available_spots.data  # Додано
         db.session.commit()
         flash('Тур успішно оновлено!', 'success')
         return redirect(url_for('manage_tours'))

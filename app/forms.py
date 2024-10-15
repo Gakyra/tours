@@ -4,6 +4,7 @@ from wtforms.validators import DataRequired, Length, EqualTo, ValidationError, E
 from .models import User
 from datetime import datetime
 import re
+from werkzeug.security import check_password_hash
 
 class RegistrationForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired(), Length(min=2, max=20)])
@@ -32,49 +33,20 @@ class RegistrationForm(FlaskForm):
         if user:
             raise ValidationError('This email is already registered. Please log in.')
 
-
 class LoginForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired(), Length(min=2, max=20)])
-    password = PasswordField('Password', validators=[DataRequired(), Length(min=8)])
+    password = PasswordField('Password', validators=[DataRequired()])
     submit = SubmitField('Login')
 
-    def validate_username(self, username):
-        user = User.query.filter_by(username=username.data).first()
-        if not user:
-            raise ValidationError('No account found with this username.')
-
-    def validate_password(self, password):
-        user = User.query.filter_by(username=self.username.data).first()
-        if user and user.password != password.data:
-            raise ValidationError('Incorrect password.')
-
-
 class BookingForm(FlaskForm):
-    date = DateTimeField('Date', validators=[DataRequired()])
+    date = DateTimeField('Booking Date', format='%Y-%m-%d', validators=[DataRequired()])
     number_of_people = IntegerField('Number of People', validators=[DataRequired()])
-    submit = SubmitField('Book Now')
-
-    def validate_number_of_people(self, number_of_people):
-        if number_of_people.data <= 0:
-            raise ValidationError('Number of people must be greater than 0.')
-
-    def validate_date(self, date):
-        if date.data < datetime.now():
-            raise ValidationError('Booking date must be in the future.')
-
+    submit = SubmitField('Book Tour')
 
 class TourForm(FlaskForm):
-    name = StringField('Tour Name', validators=[DataRequired(), Length(max=80)])
+    name = StringField('Tour Name', validators=[DataRequired()])
     description = StringField('Description', validators=[DataRequired()])
     price = IntegerField('Price', validators=[DataRequired()])
-    date = DateTimeField('Date', validators=[DataRequired()])
+    date = DateTimeField('Date', format='%Y-%m-%d', validators=[DataRequired()])
     available_spots = IntegerField('Available Spots', validators=[DataRequired()])
-    submit = SubmitField('Add Tour')
-
-    def validate_price(self, price):
-        if price.data <= 0:
-            raise ValidationError('Price must be greater than 0.')
-
-    def validate_date(self, date):
-        if date.data < datetime.now():
-            raise ValidationError('The tour date must be in the future.')
+    submit = SubmitField('Save Tour')

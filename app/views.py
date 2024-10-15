@@ -1,5 +1,5 @@
 from datetime import datetime
-from app.models import Tour
+from .models import Tour
 
 def calculate_discount(tour_id, discount_percentage):
     tour = Tour.query.get(tour_id)

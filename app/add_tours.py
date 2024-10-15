@@ -1,5 +1,5 @@
-from app import app, db
-from app.models import Tour
+from .config import app, db
+from .models import Tour
 from datetime import datetime, timedelta
 
 def add_tours():

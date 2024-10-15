@@ -1,10 +1,26 @@
 from flask import render_template, redirect, url_for, request, jsonify, flash
 from flask_login import login_user, logout_user, current_user, login_required
-from app import app, db
-from app.models import User, Tour, Booking
-from datetime import datetime
-from app.forms import RegistrationForm, LoginForm, BookingForm, TourForm
-from app.views import get_tour_details, is_tour_available, get_upcoming_tours, calculate_discount
+
+from .config import app, db
+from .models import User, Tour, Booking
+from .forms import RegistrationForm, LoginForm, BookingForm, TourForm
+from .views import get_tour_details, is_tour_available, get_upcoming_tours, calculate_discount
+
+__all__ = (
+    'index',
+    'register',
+    'login',
+    'logout',
+    'tour_details',
+    'tour_availability',
+    'upcoming_tours',
+    'tour_discount',
+    'book_tour',
+    'manage_tours',
+    'edit_tour',
+    'delete_tour',
+    'profile',
+)
 
 # Головна сторінка
 @app.route('/')

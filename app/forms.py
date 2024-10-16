@@ -1,10 +1,9 @@
+# forms.py
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, IntegerField, DateTimeField
+from wtforms import StringField, PasswordField, SubmitField, IntegerField, FloatField, DateField, DateTimeField
 from wtforms.validators import DataRequired, Length, EqualTo, ValidationError, Email
 from .models import User
-from datetime import datetime
 import re
-from werkzeug.security import check_password_hash
 
 class RegistrationForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired(), Length(min=2, max=20)])
@@ -46,7 +45,7 @@ class BookingForm(FlaskForm):
 class TourForm(FlaskForm):
     name = StringField('Tour Name', validators=[DataRequired()])
     description = StringField('Description', validators=[DataRequired()])
-    price = IntegerField('Price', validators=[DataRequired()])
-    date = DateTimeField('Date', format='%Y-%m-%d', validators=[DataRequired()])
+    price = FloatField('Price', validators=[DataRequired()])  # Змінив IntegerField на FloatField
+    date = DateField('Date', format='%Y-%m-%d', validators=[DataRequired()])  # Змінив DateTimeField на DateField
     available_spots = IntegerField('Available Spots', validators=[DataRequired()])
     submit = SubmitField('Save Tour')

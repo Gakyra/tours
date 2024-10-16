@@ -1,5 +1,6 @@
 from flask import render_template, redirect, url_for, request, jsonify, flash
 from flask_login import login_user, logout_user, current_user, login_required
+from datetime import datetime  # Імпорт datetime
 
 from .config import app, db
 from .models import User, Tour, Booking
@@ -88,10 +89,15 @@ def logout():
 # Деталі туру
 @app.route('/tour/<int:tour_id>/details', methods=['GET'])
 def tour_details(tour_id):
-    details = get_tour_details(tour_id)
-    if details:
-        return render_template('tour_details.html', tour=details)
-    return jsonify({"error": "Тур не знайдено"}), 404
+    tour = Tour.query.get(tour_id)
+    if tour:
+        if isinstance(tour.date, str):
+            try:
+                tour.date = datetime.strptime(tour.date, '%Y-%m-%d')
+            except ValueError:
+                return "Invalid date format", 400
+        return render_template('tour_details.html', tour=tour)
+    return redirect(url_for('index'))
 
 # Доступність туру
 @app.route('/tour/<int:tour_id>/availability', methods=['GET'])
@@ -171,12 +177,17 @@ def manage_tours():
             description=form.description.data,
             price=form.price.data,
             date=form.date.data,
-            available_spots=form.available_spots.data  # Додано
+            available_spots=form.available_spots.data
         )
         db.session.add(new_tour)
         db.session.commit()
         flash('Тур успішно додано!', 'success')
         return redirect(url_for('manage_tours'))
+
+    if form.errors:
+        for field, errors in form.errors.items():
+            for error in errors:
+                flash(f'Error in {field}: {error}', 'danger')
 
     tours = Tour.query.all()
     return render_template('manage_tours.html', form=form, tours=tours)
@@ -193,7 +204,7 @@ def edit_tour(tour_id):
         tour.description = form.description.data
         tour.price = form.price.data
         tour.date = form.date.data
-        tour.available_spots = form.available_spots.data  # Додано
+        tour.available_spots = form.available_spots.data
         db.session.commit()
         flash('Тур успішно оновлено!', 'success')
         return redirect(url_for('manage_tours'))

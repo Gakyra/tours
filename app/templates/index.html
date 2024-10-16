@@ -29,33 +29,41 @@
         <h1>Доступні тури</h1>
         <div class="row">
 
-            {% for tour in tours %}
-                <div class="col-md-4">
-                    <div class="card mb-4">
-                        <div class="card-body">
-                            <h5 class="card-title">{{ tour.name }}</h5>
-                            <p class="card-text">{{ tour.description }}</p>
+            {% if tours %}
+                {% for tour in tours %}
+                    <div class="col-md-4">
+                        <div class="card mb-4">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ tour.name }}</h5>
+                                <p class="card-text">{{ tour.description }}</p>
 
-                            <p class="card-text">
-                                <strong>Ціна:</strong>
-                                {% if tour.discounted_price %}
-                                    {{ tour.discounted_price }} ₴ <del>{{ tour.price }} ₴</del>
+                                <p class="card-text">
+                                    <strong>Ціна:</strong>
+                                    {% if tour.discounted_price %}
+                                        {{ tour.discounted_price }} ₴ <del>{{ tour.price }} ₴</del>
+                                    {% else %}
+                                        {{ tour.price }} ₴
+                                    {% endif %}
+                                </p>
+
+                                {% if tour.is_available %}
+                                    <a href="{{ url_for('book_tour', tour_id=tour.id) }}" class="btn btn-primary">Забронювати</a>
                                 {% else %}
-                                    {{ tour.price }} ₴
+                                    <button class="btn btn-secondary" disabled>Немає місць</button>
                                 {% endif %}
-                            </p>
 
-                            {% if tour.is_available %}
-                                <a href="{{ url_for('book_tour', tour_id=tour.id) }}" class="btn btn-primary">Забронювати</a>
-                            {% else %}
-                                <button class="btn btn-secondary" disabled>Немає місць</button>
-                            {% endif %}
-
-                            <a href="{{ url_for('tour_details', tour_id=tour.id) }}" class="btn btn-info mt-2">Деталі</a>
+                                <a href="{{ url_for('tour_details', tour_id=tour.id) }}" class="btn btn-info mt-2">Деталі</a>
+                            </div>
                         </div>
                     </div>
+                {% endfor %}
+            {% else %}
+                <div class="col-12">
+                    <div class="alert alert-warning" role="alert">
+                        На жаль, наразі немає доступних турів.
+                    </div>
                 </div>
-            {% endfor %}
+            {% endif %}
         </div>
     </div>
 

@@ -22,6 +22,7 @@ def get_upcoming_tours():
         flash(f"Error fetching upcoming tours: {str(e)}", 'danger')
         return []
 
+
 def is_tour_available(tour_id):
     try:
         tour = Tour.query.get(tour_id)

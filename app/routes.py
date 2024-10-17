@@ -27,6 +27,8 @@ __all__ = (
 @app.route('/')
 def index():
     tours = get_upcoming_tours()
+    print(f"Tours in index: {tours}")  # Логування для перевірки
+
     discount_percentage = 10
     tour_data = []
 
@@ -43,6 +45,7 @@ def index():
         tour_data.append(tour_info)
 
     return render_template('index.html', tours=tour_data)
+
 
 # Реєстрація
 @app.route('/register', methods=['GET', 'POST'])

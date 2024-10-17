@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-
     <title>Tours GlobeBook</title>
 </head>
 <body>
@@ -24,19 +23,18 @@
             </ul>
         </div>
     </nav>
-
     <div class="container mt-4">
         <h1>Доступні тури</h1>
         <div class="row">
-
+            <!-- Логування даних, які передані в шаблон -->
             {% if tours %}
+                <p>Тури знайдені: {{ tours|length }}</p> <!-- Додаємо логування в шаблоні -->
                 {% for tour in tours %}
                     <div class="col-md-4">
                         <div class="card mb-4">
                             <div class="card-body">
                                 <h5 class="card-title">{{ tour.name }}</h5>
                                 <p class="card-text">{{ tour.description }}</p>
-
                                 <p class="card-text">
                                     <strong>Ціна:</strong>
                                     {% if tour.discounted_price %}
@@ -45,13 +43,11 @@
                                         {{ tour.price }} ₴
                                     {% endif %}
                                 </p>
-
                                 {% if tour.is_available %}
                                     <a href="{{ url_for('book_tour', tour_id=tour.id) }}" class="btn btn-primary">Забронювати</a>
                                 {% else %}
                                     <button class="btn btn-secondary" disabled>Немає місць</button>
                                 {% endif %}
-
                                 <a href="{{ url_for('tour_details', tour_id=tour.id) }}" class="btn btn-info mt-2">Деталі</a>
                             </div>
                         </div>
@@ -60,13 +56,14 @@
             {% else %}
                 <div class="col-12">
                     <div class="alert alert-warning" role="alert">
-                        На жаль, наразі немає доступних ту рів.
+                        На жаль, наразі немає доступних турів.
                     </div>
                 </div>
             {% endif %}
         </div>
     </div>
-
-    <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>

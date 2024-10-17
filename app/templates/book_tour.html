@@ -1,31 +1,38 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="uk">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <title>Book Tour: {{ tour.name }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <title>Забронювати Тур</title>
 </head>
 <body>
     <div class="container mt-5">
-        <h1>Book Tour: {{ tour.name }}</h1>
+        <h1>Забронювати тур: {{ tour.name }}</h1>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
         <form method="POST">
             {{ form.hidden_tag() }}
             <div class="form-group">
-                {{ form.number_of_people.label(class="form-label") }}
-                {{ form.number_of_people(class="form-control") }}
+                {{ form.date.label(class="form-label") }}
+                {{ form.date(class="form-control", required=True) }}
             </div>
             <div class="form-group">
-                {{ form.date.label(class="form-label") }}
-                {{ form.date(class="form-control") }}
+                {{ form.number_of_people.label(class="form-label") }}
+                {{ form.number_of_people(class="form-control", required=True) }}
             </div>
             <div class="form-group">
                 {{ form.submit(class="btn btn-primary") }}
             </div>
         </form>
-        <a href="{{ url_for('index') }}" class="btn btn-secondary">Back to Tours</a>
     </div>
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>

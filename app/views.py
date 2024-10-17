@@ -12,15 +12,30 @@ def calculate_discount(tour_id, discount_percentage):
         flash(f"Error calculating discount: {str(e)}", 'danger')
     return None
 
+
 def get_upcoming_tours():
     try:
-        current_date = datetime.now()
-        upcoming_tours = Tour.query.filter(Tour.date >= current_date).all()
-        print(f"Upcoming tours: {upcoming_tours}")
+        current_date = datetime.now().date()  # Отримуємо поточну дату без часу
+        print(f"Current date: {current_date}")  # Логування поточної дати
+        tours = Tour.query.all()  # Отримуємо всі тури спочатку
+        print(f"All tours: {tours}")  # Логування всіх турів
+
+        upcoming_tours = []
+        for tour in tours:
+            print(f"Tour: {tour.name}, Date: {tour.date}, Type: {type(tour.date)}")  # Логування дати кожного туру
+            tour_date = tour.date.date()  # Перетворення дати туру на формат дати без часу
+            print(f"Parsed date: {tour_date}")
+
+            if tour_date >= current_date:
+                upcoming_tours.append(tour)
+
+        print(f"Upcoming tours retrieved: {upcoming_tours}")  # Логування отриманих турів
+        if not upcoming_tours:
+            flash("Немає доступних наступних турів", 'warning')
         return upcoming_tours
     except Exception as e:
         flash(f"Error fetching upcoming tours: {str(e)}", 'danger')
-        return []
+        return
 
 
 def is_tour_available(tour_id):

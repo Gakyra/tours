@@ -32,6 +32,7 @@ class RegistrationForm(FlaskForm):
         if user:
             raise ValidationError('This email is already registered. Please log in.')
 
+
 class LoginForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired(), Length(min=2, max=20)])
     password = PasswordField('Password', validators=[DataRequired()])
@@ -45,7 +46,7 @@ class BookingForm(FlaskForm):
 class TourForm(FlaskForm):
     name = StringField('Tour Name', validators=[DataRequired()])
     description = StringField('Description', validators=[DataRequired()])
-    price = FloatField('Price', validators=[DataRequired()])  # Змінив IntegerField на FloatField
-    date = DateField('Date', format='%Y-%m-%d', validators=[DataRequired()])  # Змінив DateTimeField на DateField
+    price = FloatField('Price', validators=[DataRequired()])
+    date = DateField('Date', format='%Y-%m-%d', validators=[DataRequired()])
     available_spots = IntegerField('Available Spots', validators=[DataRequired()])
     submit = SubmitField('Save Tour')

@@ -1,7 +1,6 @@
-# forms.py
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, IntegerField, FloatField, DateField, DateTimeField
-from wtforms.validators import DataRequired, Length, EqualTo, ValidationError, Email
+from wtforms.validators import DataRequired, Length, EqualTo, ValidationError, Email, NumberRange
 from .models import User
 import re
 
@@ -32,7 +31,6 @@ class RegistrationForm(FlaskForm):
         if user:
             raise ValidationError('This email is already registered. Please log in.')
 
-
 class LoginForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired(), Length(min=2, max=20)])
     password = PasswordField('Password', validators=[DataRequired()])
@@ -43,6 +41,7 @@ class BookingForm(FlaskForm):
     number_of_people = IntegerField('Number of People', validators=[DataRequired()])
     submit = SubmitField('Book Tour')
 
+
 class TourForm(FlaskForm):
     name = StringField('Tour Name', validators=[DataRequired()])
     description = StringField('Description', validators=[DataRequired()])
@@ -50,3 +49,8 @@ class TourForm(FlaskForm):
     date = DateField('Date', format='%Y-%m-%d', validators=[DataRequired()])
     available_spots = IntegerField('Available Spots', validators=[DataRequired()])
     submit = SubmitField('Save Tour')
+
+
+class DiscountForm(FlaskForm):
+    discount_percentage = IntegerField('Discount Percentage', validators=[DataRequired(), NumberRange(min=0, max=100)])
+    submit = SubmitField('Apply Discount')

@@ -1,16 +1,14 @@
 {% extends 'base.html' %}
-
 {% block content %}
     <div class="container">
         <h1 class="mt-4">{{ tour.name }}</h1>
         <p><strong>Description:</strong> {{ tour.description }}</p>
         <p><strong>Price:</strong> ${{ tour.price }}</p>
-
-        {# Перевірка, чи дата є об'єктом datetime #}
         <p><strong>Date:</strong> {{ tour.date.strftime('%Y-%m-%d') if tour.date is not none else 'Date not available' }}</p>
-
         <p><strong>Available Spots:</strong> {{ tour.available_spots }}</p>
-
+        {% if tour.image_file %}
+            <img src="{{ url_for('static', filename='images/' ~ tour.image_file) }}" alt="{{ tour.name }} image" class="img-fluid">
+        {% endif %}
         <a href="{{ url_for('book_tour', tour_id=tour.id) }}" class="btn btn-primary">Book this tour</a>
         <a href="{{ url_for('index') }}" class="btn btn-secondary">Back to Tours</a>
     </div>

@@ -1,10 +1,12 @@
 from flask import render_template, redirect, url_for, request, jsonify, flash
 from flask_login import login_user, logout_user, current_user, login_required
-from datetime import datetime  # Імпорт datetime
+from datetime import datetime
 from .config import app, db
 from .models import User, Tour, Booking
-from .forms import RegistrationForm, LoginForm, BookingForm, TourForm
+from .forms import RegistrationForm, LoginForm, BookingForm, TourForm, DiscountForm
 from .views import get_tour_details, is_tour_available, get_upcoming_tours, calculate_discount
+from werkzeug.utils import secure_filename
+import os
 
 __all__ = (
     'index',
@@ -22,12 +24,14 @@ __all__ = (
     'profile',
 )
 
+
 # Головна сторінка
 @app.route('/')
 def index():
     tours = get_upcoming_tours()
-    print(f"Tours in index: {tours}")  # Додатковий оператор для відладки
+    print(f"Tours in index: {tours}")
     return render_template('index.html', tours=tours)
+
 
 # Реєстрація
 @app.route('/register', methods=['GET', 'POST'])
@@ -41,12 +45,11 @@ def register():
         user.set_password(form.password.data)  # Хешування пароля
         db.session.add(user)
         db.session.commit()
-        print(f"User {user.username} registered successfully")  # Логування
+        print(f"User {user.username} registered successfully")
         flash('Акаунт успішно створено! Тепер ви можете увійти.', 'success')
         return redirect(url_for('login'))
     print("Form errors: ", form.errors)  # Логування
     return render_template('register.html', form=form)
-
 
 
 # Увійти
@@ -73,14 +76,13 @@ def login():
     return render_template('login.html', form=form)
 
 
-
-
 # Вихід
 @app.route('/logout')
 def logout():
     logout_user()
     flash('Ви вийшли з системи!', 'success')
     return redirect(url_for('index'))
+
 
 # Деталі туру
 @app.route('/tour/<int:tour_id>/details', methods=['GET'])
@@ -95,11 +97,13 @@ def tour_details(tour_id):
         return render_template('tour_details.html', tour=tour)
     return redirect(url_for('index'))
 
+
 # Доступність туру
 @app.route('/tour/<int:tour_id>/availability', methods=['GET'])
 def tour_availability(tour_id):
     available = is_tour_available(tour_id)
     return jsonify({"available": available})
+
 
 # Наступні тури
 @app.route('/tours/upcoming', methods=['GET'])
@@ -114,17 +118,26 @@ def upcoming_tours():
         } for tour in tours])
     return jsonify({"message": "Немає доступних наступних турів"})
 
+
 # Знижка на тур
-@app.route('/tour/<int:tour_id>/discount', methods=['POST'])
+@app.route('/tour/<int:tour_id>/discount', methods=['GET', 'POST'])
+@login_required
 def tour_discount(tour_id):
-    data = request.get_json()
-    discount_percentage = data.get('discount_percentage')
-    if discount_percentage is None:
-        return jsonify({"error": "Процент знижки не вказано"}), 400
-    discounted_price = calculate_discount(tour_id, discount_percentage)
-    if discounted_price is not None:
-        return jsonify({"discounted_price": discounted_price})
-    return jsonify({"error": "Тур не знайдено"}), 404
+    if not current_user.is_admin:
+        flash('Доступ заборонено: тільки адміністратори можуть застосовувати знижки.', 'danger')
+        return redirect(url_for('manage_tours'))
+    form = DiscountForm()
+    if form.validate_on_submit():
+        discount_percentage = form.discount_percentage.data
+        discounted_price = calculate_discount(tour_id, discount_percentage)
+        if discounted_price is not None:
+            flash(f'New discounted price: {discounted_price}', 'success')
+            return redirect(url_for('manage_tours'))
+        else:
+            flash('Tour not found', 'danger')
+    tour = Tour.query.get_or_404(tour_id)
+    return render_template('discount.html', form=form, tour=tour)
+
 
 # Бронювання туру
 @app.route('/tour/<int:tour_id>/book', methods=['GET', 'POST'])
@@ -135,10 +148,11 @@ def book_tour(tour_id):
     if request.method == 'POST' and form.validate_on_submit():
         date = form.date.data
         people = form.number_of_people.data
+        print(f"Requested spots: {people}, Available spots: {tour.available_spots}")  # Додавання логування
         if not tour.is_available(people):
             flash('Недостатньо вільних місць для бронювання!', 'danger')
             return redirect(url_for('book_tour', tour_id=tour_id))
-        total_price = tour.price * people
+        total_price = tour.price * people  # Розрахунок загальної ціни
         booking = Booking(
             user_id=current_user.id,
             tour_id=tour_id,
@@ -149,12 +163,14 @@ def book_tour(tour_id):
         tour.available_spots -= people
         db.session.add(booking)
         db.session.commit()
-        flash('Бронювання успішне!', 'success')
+        flash(f'Бронювання успішне! Загальна ціна: {total_price}', 'success')
         return redirect(url_for('index'))
     elif request.method == 'GET':
         form.date.data = tour.date.date()  # Встановлюємо значення дати за замовчуванням
     print(f"Form errors: {form.errors}")  # Логування помилок форми
     return render_template('book_tour.html', form=form, tour=tour)
+
+
 
 # Керування турами
 @app.route('/manage_tours', methods=['GET', 'POST'])
@@ -183,7 +199,6 @@ def manage_tours():
     tours = Tour.query.all()
     return render_template('manage_tours.html', form=form, tours=tours)
 
-# Редагування туру
 @app.route('/tour/<int:tour_id>/edit', methods=['GET', 'POST'])
 @login_required
 def edit_tour(tour_id):
@@ -203,21 +218,35 @@ def edit_tour(tour_id):
         return redirect(url_for('manage_tours'))
     return render_template('edit_tour.html', form=form, tour=tour)
 
+
+
+
+
 # Видалення туру
 @app.route('/tour/<int:tour_id>/delete', methods=['POST'])
 @login_required
 def delete_tour(tour_id):
     tour = Tour.query.get_or_404(tour_id)
     if not current_user.is_admin:
-        flash('Доступ заборонено: тільки адміністратори можуть керувати турами.', 'danger')
-        return redirect(url_for('index'))
+        flash('Доступ заборонено: тільки адміністратори можуть видаляти тури.', 'danger')
+        return redirect(url_for('manage_tours'))
+
+    # Видаляємо всі бронювання для цього туру
+    bookings = Booking.query.filter_by(tour_id=tour.id).all()
+    for booking in bookings:
+        db.session.delete(booking)
+
     db.session.delete(tour)
     db.session.commit()
-    flash('Тур успішно видалено!', 'success')
+    flash('Тур успішно видалено.', 'success')
     return redirect(url_for('manage_tours'))
+
 
 # Профіль користувача
 @app.route('/profile')
 @login_required
 def profile():
-    return render_template('profile.html')
+    bookings = Booking.query.filter_by(user_id=current_user.id).all()
+    tours = [booking.tour for booking in bookings]
+    return render_template('profile.html', tours=tours)
+

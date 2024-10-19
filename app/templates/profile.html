@@ -3,33 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
-    <title>Профіль</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <title>User Profile</title>
 </head>
 <body>
-    <div class="container mt-4">
-        <h1>Профіль користувача</h1>
-        <h2>Ваші бронювання</h2>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Тур</th>
-                    <th>Дата</th>
-                    <th>Кількість людей</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for booking in bookings %}
-                    <tr>
-                        <td>{{ booking.tour.name }}</td>
-                        <td>{{ booking.date }}</td>
-                        <td>{{ booking.number_of_people }}</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+    <div class="container mt-5">
+        <h1>Profile</h1>
+        <p><strong>Username:</strong> {{ current_user.username }}</p>
+        <p><strong>Email:</strong> {{ current_user.email }}</p>
 
-    <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+        <h2>Booked Tours</h2>
+        {% if tours %}
+            <ul class="list-group">
+                {% for tour in tours %}
+                    <li class="list-group-item">
+                        <h5>{{ tour.name }}</h5>
+                        <p><strong>Description:</strong> {{ tour.description }}</p>
+                        <p><strong>Price per Person:</strong> ${{ tour.price }}</p>
+                        <p><strong>Date:</strong> {{ tour.date.strftime('%Y-%m-%d') }}</p>
+                        <p><strong>Number of People:</strong> {{ tour.bookings[0].number_of_people }}</p>
+                        <p><strong>Total Price:</strong> ${{ tour.bookings[0].total_price }}</p>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>You have no booked tours.</p>
+        {% endif %}
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>

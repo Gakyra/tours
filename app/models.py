@@ -1,9 +1,8 @@
-from flask_login import UserMixin
-from .config import db
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask_login import UserMixin
+from .config import db
 
-# Модель користувача
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(150), nullable=False, unique=True)
@@ -18,9 +17,8 @@ class User(db.Model, UserMixin):
         return check_password_hash(self.password_hash, password)
 
     def __repr__(self):
-        return
+        return f'<User {self.username}>'
 
-# Модель туру
 class Tour(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
@@ -29,24 +27,23 @@ class Tour(db.Model):
     date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     available_spots = db.Column(db.Integer, nullable=False, default=10)
 
+    def is_available(self, number_of_people):
+        return self.available_spots >= number_of_people
+
     def __repr__(self):
         return f'<Tour {self.name}>'
-
-    def is_available(self, spots_needed):
-        return self.available_spots >= spots_needed
-
 
 class Booking(db.Model):
     __tablename__ = 'booking'
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    tour_id = db.Column(db.Integer, db.ForeignKey('tour.id'), nullable=False)
+    tour_id = db.Column(db.Integer, db.ForeignKey('tour.id', ondelete='CASCADE'), nullable=False)
     number_of_people = db.Column(db.Integer, nullable=False)
     date = db.Column(db.DateTime, nullable=False)
     total_price = db.Column(db.Float, nullable=False)
+
     user = db.relationship('User', backref='bookings')
-    tour = db.relationship('Tour', backref='bookings')
+    tour = db.relationship('Tour', backref='bookings', passive_deletes=True)
 
     def __repr__(self):
         return f'<Booking {self.id} for Tour {self.tour_id}>'
-

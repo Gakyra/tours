@@ -26,9 +26,8 @@
     <div class="container mt-4">
         <h1>Доступні тури</h1>
         <div class="row">
-            <!-- Логування даних, які передані в шаблон -->
             {% if tours %}
-                <p>Тури знайдені: {{ tours|length }}</p> <!-- Додаємо логування в шаблоні -->
+                <p>Тури знайдені: {{ tours|length }}</p>
                 {% for tour in tours %}
                     <div class="col-md-4">
                         <div class="card mb-4">
@@ -37,10 +36,11 @@
                                 <p class="card-text">{{ tour.description }}</p>
                                 <p class="card-text">
                                     <strong>Ціна:</strong>
-                                    {% if tour.discounted_price %}
-                                        {{ tour.discounted_price }} ₴ <del>{{ tour.price }} ₴</del>
+                                    {% if tour.discount_percentage %}
+                                        <span class="text-muted"><s>{{ "%.2f" % tour.original_price }} ₴</s></span>
+                                        <span class="text-danger">{{ "%.2f" % tour.price }} ₴ ({{ tour.discount_percentage }}% знижка)</span>
                                     {% else %}
-                                        {{ tour.price }} ₴
+                                        {{ "%.2f" % tour.price }} ₴
                                     {% endif %}
                                 </p>
                                 {% if tour.is_available %}

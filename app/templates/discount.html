@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="uk">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,8 +8,12 @@
 </head>
 <body>
     <div class="container mt-5">
-        <h1>Apply Discount</h1>
-        <form method="POST" action="{{ url_for('tour_discount', tour_id=tour.id) }}">
+        <h1>Apply Discount to {{ tour.name }}</h1>
+        <p>Original Price: {{ tour.price }}</p> <!-- Оригінальна ціна -->
+        {% if discounted_price %}
+        <p>Discounted Price: <span class="text-danger">{{ discounted_price }}</span> ({{ discount_percentage }}% off)</p> <!-- Знижена ціна -->
+        {% endif %}
+        <form method="POST">
             {{ form.hidden_tag() }}
             <div class="form-group">
                 {{ form.discount_percentage.label(class="form-label") }}
@@ -19,8 +23,9 @@
                 {{ form.submit(class="btn btn-primary") }}
             </div>
         </form>
+        <a href="{{ url_for('manage_tours') }}" class="btn btn-secondary mt-3">Back to Manage Tours</a>
     </div>
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>

@@ -85,7 +85,7 @@ def logout():
 
 
 # Деталі туру
-@app.route('/tour/<int:tour_id>/details', methods=['GET'])
+@app.route('/tour/<int:tour_id>/detail', methods=['GET'])
 def tour_details(tour_id):
     tour = Tour.query.get(tour_id)
     if tour:
@@ -127,16 +127,20 @@ def tour_discount(tour_id):
         flash('Доступ заборонено: тільки адміністратори можуть застосовувати знижки.', 'danger')
         return redirect(url_for('manage_tours'))
     form = DiscountForm()
+    tour = Tour.query.get_or_404(tour_id)
+    discounted_price = None
     if form.validate_on_submit():
         discount_percentage = form.discount_percentage.data
-        discounted_price = calculate_discount(tour_id, discount_percentage)
-        if discounted_price is not None:
-            flash(f'New discounted price: {discounted_price}', 'success')
-            return redirect(url_for('manage_tours'))
-        else:
-            flash('Tour not found', 'danger')
-    tour = Tour.query.get_or_404(tour_id)
-    return render_template('discount.html', form=form, tour=tour)
+        if not tour.original_price:
+            tour.original_price = tour.price
+        discounted_price = tour.original_price - (tour.original_price * discount_percentage / 100)
+        tour.price = discounted_price
+        tour.discount_percentage = discount_percentage
+        db.session.commit()
+        flash(f'New discounted price: {discounted_price}', 'success')
+        return redirect(url_for('manage_tours'))
+    return render_template('discount.html', form=form, tour=tour, discounted_price=discounted_price)
+
 
 
 # Бронювання туру
@@ -148,7 +152,7 @@ def book_tour(tour_id):
     if request.method == 'POST' and form.validate_on_submit():
         date = form.date.data
         people = form.number_of_people.data
-        print(f"Requested spots: {people}, Available spots: {tour.available_spots}")  # Додавання логування
+        print(f"Requested spots: {people}, Available spots: {tour.available_spots}")
         if not tour.is_available(people):
             flash('Недостатньо вільних місць для бронювання!', 'danger')
             return redirect(url_for('book_tour', tour_id=tour_id))
@@ -166,8 +170,8 @@ def book_tour(tour_id):
         flash(f'Бронювання успішне! Загальна ціна: {total_price}', 'success')
         return redirect(url_for('index'))
     elif request.method == 'GET':
-        form.date.data = tour.date.date()  # Встановлюємо значення дати за замовчуванням
-    print(f"Form errors: {form.errors}")  # Логування помилок форми
+        form.date.data = tour.date.date()
+    print(f"Form errors: {form.errors}")
     return render_template('book_tour.html', form=form, tour=tour)
 
 

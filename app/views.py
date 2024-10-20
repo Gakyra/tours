@@ -21,19 +21,19 @@ def calculate_discount(tour_id, discount_percentage):
 def get_upcoming_tours():
     try:
         current_date = datetime.now().date()
-        print(f"Current date: {current_date}")  # Логування поточної дати
-        tours = Tour.query.all()  # Отримуємо всі тури спочатку
-        print(f"All tours: {tours}")  # Логування всіх турів
+        print(f"Current date: {current_date}")
+        tours = Tour.query.all()
+        print(f"All tours: {tours}")
         upcoming_tours = []
         for tour in tours:
-            print(f"Tour: {tour.name}, Date: {tour.date}, Type: {type(tour.date)}")  # Логування дати кожного туру
-            tour_date = tour.date.date()  # Перетворення дати туру на формат дати без часу
+            print(f"Tour: {tour.name}, Date: {tour.date}, Type: {type(tour.date)}")
+            tour_date = tour.date.date()
             print(f"Parsed date: {tour_date}")
 
             if tour_date >= current_date:
                 upcoming_tours.append(tour)
 
-        print(f"Upcoming tours retrieved: {upcoming_tours}")  # Логування отриманих турів
+        print(f"Upcoming tours retrieved: {upcoming_tours}")
         if not upcoming_tours:
             flash("Немає доступних наступних турів", 'warning')
         return upcoming_tours

@@ -28,16 +28,37 @@
         <p>
             <strong>Price:</strong>
             {% if tour.discount_percentage %}
-                <span class="text-muted"><s>{{ '%.2f' % tour.original_price }}</s></span>
+                <span class="text-muted"><s>{{ '%.2f' % tour.original_price }} ₴</s></span>
                 <span class="text-danger">{{ '%.2f' % tour.price }} ₴ ({{ tour.discount_percentage }}% off)</span>
             {% else %}
                 {{ '%.2f' % tour.price }} ₴
             {% endif %}
         </p>
+        {% if tour.images %}
+            <div id="carousel{{ tour.id }}" class="carousel slide" data-ride="carousel">
+                <div class="carousel-inner">
+                    {% for image in tour.images %}
+                        <div class="carousel-item {% if loop.first %}active{% endif %}">
+                            <img src="{{ url_for('static', filename='uploads/' ~ image.filename) }}" class="d-block w-100" alt="Tour Image">
+                        </div>
+                    {% endfor %}
+                </div>
+                <a class="carousel-control-prev" href="#carousel{{ tour.id }}" role="button" data-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="sr-only">Previous</span>
+                </a>
+                <a class="carousel-control-next" href="#carousel{{ tour.id }}" role="button" data-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="sr-only">Next</span>
+                </a>
+            </div>
+        {% else %}
+            <p>No Images</p>
+        {% endif %}
         <p>Date: {{ tour.date.strftime('%Y-%m-%d') }}</p>
         <p>Available Spots: {{ tour.available_spots }}</p>
-        <a href="{{ url_for('book_tour', tour_id=tour.id) }}" class="btn btn-success">Book Now</a>
-        <a href="{{ url_for('index') }}" class="btn btn-secondary">Back to Home</a>
+        <a href="{{ url_for('book_tour', tour_id=tour.id) }}" class="btn btn-success mt-3">Book Now</a>
+        <a href="{{ url_for('index') }}" class="btn btn-secondary mt-3">Back to Home</a>
     </div>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>

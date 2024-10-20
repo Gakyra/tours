@@ -19,6 +19,12 @@ class User(db.Model, UserMixin):
     def __repr__(self):
         return f'<User {self.username}>'
 
+
+class TourImage(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    filename = db.Column(db.String(100), nullable=False)
+    tour_id = db.Column(db.Integer, db.ForeignKey('tour.id'), nullable=False)
+
 class Tour(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
@@ -28,12 +34,14 @@ class Tour(db.Model):
     discount_percentage = db.Column(db.Float)
     date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     available_spots = db.Column(db.Integer, nullable=False, default=10)
+    images = db.relationship('TourImage', backref='tour', lazy=True, cascade='all, delete-orphan')
 
     def is_available(self, number_of_people):
         return self.available_spots >= number_of_people
 
     def __repr__(self):
         return f'<Tour {self.name}>'
+
 
 
 class Booking(db.Model):

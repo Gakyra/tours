@@ -1,12 +1,15 @@
+import os
+import re
 from flask import render_template, redirect, url_for, request, jsonify, flash
 from flask_login import login_user, logout_user, current_user, login_required
 from datetime import datetime
 from .config import app, db
-from .models import User, Tour, Booking
+from .models import User, Tour, Booking, TourImage
 from .forms import RegistrationForm, LoginForm, BookingForm, TourForm, DiscountForm
 from .views import get_tour_details, is_tour_available, get_upcoming_tours, calculate_discount
+from .image import save_image
 from werkzeug.utils import secure_filename
-import os
+
 
 __all__ = (
     'index',
@@ -190,8 +193,13 @@ def manage_tours():
             description=form.description.data,
             price=form.price.data,
             date=form.date.data,
-            available_spots=form.available_spots.data
+            available_spots=form.available_spots.data,
         )
+        if form.images.data:
+            for image in request.files.getlist('images'):
+                filename = save_image(image, app.config['UPLOAD_FOLDER'])
+                new_image = TourImage(filename=filename, tour=new_tour)
+                db.session.add(new_image)
         db.session.add(new_tour)
         db.session.commit()
         flash('Тур успішно додано!', 'success')
@@ -203,6 +211,7 @@ def manage_tours():
     tours = Tour.query.all()
     return render_template('manage_tours.html', form=form, tours=tours)
 
+#Редагування туру
 @app.route('/tour/<int:tour_id>/edit', methods=['GET', 'POST'])
 @login_required
 def edit_tour(tour_id):
@@ -217,12 +226,15 @@ def edit_tour(tour_id):
         tour.price = form.price.data
         tour.date = form.date.data
         tour.available_spots = form.available_spots.data
+        if form.images.data:
+            for image in request.files.getlist('images'):
+                filename = save_image(image, app.config['UPLOAD_FOLDER'])
+                new_image = TourImage(filename=filename, tour=tour)
+                db.session.add(new_image)
         db.session.commit()
         flash('Тур успішно оновлено!', 'success')
         return redirect(url_for('manage_tours'))
     return render_template('edit_tour.html', form=form, tour=tour)
-
-
 
 
 
@@ -234,16 +246,32 @@ def delete_tour(tour_id):
     if not current_user.is_admin:
         flash('Доступ заборонено: тільки адміністратори можуть видаляти тури.', 'danger')
         return redirect(url_for('manage_tours'))
-
-    # Видаляємо всі бронювання для цього туру
     bookings = Booking.query.filter_by(tour_id=tour.id).all()
     for booking in bookings:
         db.session.delete(booking)
-
+    images = TourImage.query.filter_by(tour_id=tour.id).all()
+    for image in images:
+        os.remove(os.path.join(app.config['UPLOAD_FOLDER'], image.filename))
+        db.session.delete(image)
     db.session.delete(tour)
     db.session.commit()
     flash('Тур успішно видалено.', 'success')
     return redirect(url_for('manage_tours'))
+
+
+@app.route('/tour_image/<int:image_id>/delete', methods=['POST'])
+@login_required
+def delete_tour_image(image_id):
+    image = TourImage.query.get_or_404(image_id)
+    if not current_user.is_admin:
+        flash('Доступ заборонено: тільки адміністратори можуть видаляти зображення.', 'danger')
+        return redirect(url_for('manage_tours'))
+    os.remove(os.path.join(app.config['UPLOAD_FOLDER'], image.filename))
+    db.session.delete(image)
+    db.session.commit()
+    flash('Зображення успішно видалено.', 'success')
+    return redirect(request.referrer)
+
 
 
 # Профіль користувача

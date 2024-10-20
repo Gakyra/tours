@@ -1,8 +1,11 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, IntegerField, FloatField, DateField, DateTimeField
+from wtforms import StringField, PasswordField, SubmitField, IntegerField, FloatField, DateField, DateTimeField, FileField, TextAreaField
 from wtforms.validators import DataRequired, Length, EqualTo, ValidationError, Email, NumberRange
+from flask_wtf.file import FileAllowed
 from .models import User
 import re
+
+
 
 class RegistrationForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired(), Length(min=2, max=20)])
@@ -44,11 +47,16 @@ class BookingForm(FlaskForm):
 
 class TourForm(FlaskForm):
     name = StringField('Tour Name', validators=[DataRequired()])
-    description = StringField('Description', validators=[DataRequired()])
+    description = TextAreaField('Description', validators=[DataRequired()])
     price = FloatField('Price', validators=[DataRequired()])
     date = DateField('Date', format='%Y-%m-%d', validators=[DataRequired()])
     available_spots = IntegerField('Available Spots', validators=[DataRequired()])
+    images = FileField('Tour Images', validators=[FileAllowed(['jpg', 'png'], 'Images only!')], render_kw={"multiple": True})  # Поле для декількох зображень
     submit = SubmitField('Save Tour')
+
+
+
+
 
 
 class DiscountForm(FlaskForm):

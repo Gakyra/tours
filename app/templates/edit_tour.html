@@ -8,30 +8,53 @@
 </head>
 <body>
     <div class="container mt-5">
-        <h1>Edit Tour: {{ tour.name }}</h1>
-        <form method="POST">
+        <h1>Edit Tour</h1>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        <form method="POST" enctype="multipart/form-data">
             {{ form.hidden_tag() }}
             <div class="form-group">
                 {{ form.name.label(class="form-label") }}
-                {{ form.name(class="form-control") }}
+                {{ form.name(class="form-control", required=True) }}
             </div>
             <div class="form-group">
                 {{ form.description.label(class="form-label") }}
-                {{ form.description(class="form-control", rows=4) }}
+                {{ form.description(class="form-control", required=True) }}
             </div>
             <div class="form-group">
                 {{ form.price.label(class="form-label") }}
-                {{ form.price(class="form-control") }}
+                {{ form.price(class="form-control", required=True) }}
             </div>
             <div class="form-group">
                 {{ form.date.label(class="form-label") }}
-                {{ form.date(class="form-control") }}
+                {{ form.date(class="form-control", required=True) }}
+            </div>
+            <div class="form-group">
+                {{ form.available_spots.label(class="form-label") }}
+                {{ form.available_spots(class="form-control", required=True) }}
+            </div>
+            <div class="form-group">
+                {{ form.images.label(class="form-label") }}
+                {{ form.images(class="form-control-file", multiple=True) }} <!-- Підтримка декількох зображень -->
+                {% for image in tour.images %}
+                    <div class="mt-2">
+                        <img src="{{ url_for('static', filename='uploads/' ~ image.filename) }}" alt="Tour Image" class="img-thumbnail" width="200">
+                        <form action="{{ url_for('delete_tour_image', image_id=image.id) }}" method="POST" style="display:inline-block;">
+                            <button class="btn btn-danger btn-sm">Delete</button>
+                        </form>
+                    </div>
+                {% endfor %}
             </div>
             <div class="form-group">
                 {{ form.submit(class="btn btn-primary") }}
             </div>
         </form>
-        <a href="{{ url_for('manage_tours') }}" class="btn btn-secondary">Back to Tours</a>
+        <a href="{{ url_for('manage_tours') }}" class="btn btn-secondary mt-3">Back to Manage Tours</a>
     </div>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>

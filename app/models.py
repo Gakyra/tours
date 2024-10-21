@@ -2,6 +2,8 @@ from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 from .config import db
+from sqlalchemy.orm import relationship, backref
+
 
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
@@ -25,16 +27,20 @@ class TourImage(db.Model):
     filename = db.Column(db.String(100), nullable=False)
     tour_id = db.Column(db.Integer, db.ForeignKey('tour.id'), nullable=False)
 
+
 class Tour(db.Model):
+    __tablename__ = 'tour'
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
+    name = db.Column(db.String(120), nullable=False)
     description = db.Column(db.Text, nullable=False)
     price = db.Column(db.Float, nullable=False)
-    original_price = db.Column(db.Float)
-    discount_percentage = db.Column(db.Float)
-    date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    available_spots = db.Column(db.Integer, nullable=False, default=10)
-    images = db.relationship('TourImage', backref='tour', lazy=True, cascade='all, delete-orphan')
+    original_price = db.Column(db.Float, nullable=True)
+    date = db.Column(db.DateTime, nullable=False)
+    available_spots = db.Column(db.Integer, nullable=False)
+    latitude = db.Column(db.Float, nullable=False)
+    longitude = db.Column(db.Float, nullable=False)
+    images = relationship('TourImage', backref='tour', cascade='all, delete-orphan')
+    bookings = relationship('Booking', back_populates='tour', cascade='all, delete-orphan')
 
     def is_available(self, number_of_people):
         return self.available_spots >= number_of_people
@@ -52,9 +58,9 @@ class Booking(db.Model):
     number_of_people = db.Column(db.Integer, nullable=False)
     date = db.Column(db.DateTime, nullable=False)
     total_price = db.Column(db.Float, nullable=False)
-
-    user = db.relationship('User', backref='bookings')
-    tour = db.relationship('Tour', backref='bookings', passive_deletes=True)
+    user = relationship('User', backref='bookings')
+    tour = relationship('Tour', back_populates='bookings')
 
     def __repr__(self):
         return f'<Booking {self.id} for Tour {self.tour_id}>'
+

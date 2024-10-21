@@ -13,9 +13,14 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav">
                 <li class="nav-item"><a class="nav-link" href="{{ url_for('index') }}">Головна</a></li>
-                <li class="nav-item"><a class="nav-link" href="{{ url_for('calendar') }}">Календар</a></li> <!-- Додаємо посилання на календар -->
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('calendar') }}">Календар</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('map_view') }}">Мапа</a></li>
                 {% if current_user.is_authenticated %}
                     <li class="nav-item"><a class="nav-link" href="{{ url_for('profile') }}">Профіль</a></li>
+                    {% if current_user.is_admin %}
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('manage_tours') }}">Керування турами</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('admin_bookings') }}">Бронювання</a></li>
+                    {% endif %}
                     <li class="nav-item"><a class="nav-link" href="{{ url_for('logout') }}">Вихід</a></li>
                 {% else %}
                     <li class="nav-item"><a class="nav-link" href="{{ url_for('login') }}">Вхід</a></li>

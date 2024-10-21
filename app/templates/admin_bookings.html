@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <title>Profile</title>
+    <title>Admin Bookings</title>
 </head>
 <body>
     <div class="container mt-5">
-        <h1>Profile</h1>
+        <h1>Admin Bookings</h1>
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
@@ -19,20 +19,20 @@
         <table class="table table-striped">
             <thead>
                 <tr>
-                    <th>Tour Name</th>
-                    <th>Description</th>
-                    <th>Price per Person</th>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Tour</th>
                     <th>Date</th>
                     <th>Number of People</th>
                     <th>Total Price</th>
                 </tr>
             </thead>
             <tbody>
-                {% for booking in current_user.bookings %}
+                {% for booking in bookings %}
                 <tr>
+                    <td>{{ booking.user.username }}</td>
+                    <td>{{ booking.user.email }}</td>
                     <td>{{ booking.tour.name }}</td>
-                    <td>{{ booking.tour.description }}</td>
-                    <td>{{ booking.tour.price }}</td>
                     <td>{{ booking.date.strftime('%Y-%m-%d') }}</td>
                     <td>{{ booking.number_of_people }}</td>
                     <td>{{ booking.total_price }}</td>

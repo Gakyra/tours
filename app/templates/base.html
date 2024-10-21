@@ -7,33 +7,27 @@
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="{{ url_for('static', filename='css/styles.css') }}" rel="stylesheet">
     <link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.css' rel='stylesheet' />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" integrity="sha512-xwE/TEIr5TFs9kEYw76uMwZnCPGxBtOPkb/nPiv9FFHX/4A8Iz4KZfKMp06kpjQ6pD57azPxD4Co8KPpS9g3ag==" crossorigin=""/>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <a class="navbar-brand" href="{{ url_for('index') }}">Tours GlobeBook</a>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav">
-                {% if current_user.is_authenticated %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('profile') }}">Profile</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('manage_tours') }}">Manage Tours</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
-                    </li>
-                {% else %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('login') }}">Login</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('register') }}">Register</a>
-                    </li>
-                {% endif %}
-            </ul>
-        </div>
-    </nav>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="{{ url_for('index') }}">Tours GlobeBook</a>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('index') }}">Головна</a></li>
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('calendar') }}">Календар</a></li>
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('map_view') }}">Мапа</a></li>
+            {% if current_user.is_authenticated %}
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('profile') }}">Профіль</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('logout') }}">Вихід</a></li>
+            {% else %}
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('login') }}">Вхід</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('register') }}">Реєстрація</a></li>
+            {% endif %}
+        </ul>
+    </div>
+</nav>
+
     <div class="container mt-4">
         {% with messages = get_flashed_messages() %}
             {% if messages %}
@@ -49,6 +43,7 @@
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.js'></script> <!-- Календар  -->
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.js'></script> <!-- Календар -->
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" integrity="sha512-GkAtWpAaCyg9Q+QcHcDg0xyhbmX1e+GbGNEps/EPEvY4iIPy0TRQaHHKxaDNGGIc6vxdve3WXe/xfb4x/6uV8Q==" crossorigin=""></script><!-- Мапа -->
 </body>
 </html>

@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, IntegerField, FloatField, DateField, DateTimeField, FileField, TextAreaField
+from wtforms import StringField, PasswordField, SubmitField, IntegerField, FloatField, DateField,DateTimeLocalField, DateTimeField, FileField, TextAreaField
 from wtforms.validators import DataRequired, Length, EqualTo, ValidationError, Email, NumberRange
 from flask_wtf.file import FileAllowed
 from .models import User
@@ -39,10 +39,11 @@ class LoginForm(FlaskForm):
     password = PasswordField('Password', validators=[DataRequired()])
     submit = SubmitField('Login')
 
+
 class BookingForm(FlaskForm):
-    date = DateTimeField('Booking Date', format='%Y-%m-%d', validators=[DataRequired()])
-    number_of_people = IntegerField('Number of People', validators=[DataRequired()])
-    submit = SubmitField('Book Tour')
+    date = DateTimeLocalField('Дата', format='%Y-%m-%dT%H:%M', validators=[DataRequired()])  # Використовуємо DateTimeLocalField
+    number_of_people = IntegerField('Кількість людей', validators=[DataRequired()])
+    submit = SubmitField('Забронювати')
 
 
 class TourForm(FlaskForm):
@@ -51,12 +52,10 @@ class TourForm(FlaskForm):
     price = FloatField('Price', validators=[DataRequired()])
     date = DateField('Date', format='%Y-%m-%d', validators=[DataRequired()])
     available_spots = IntegerField('Available Spots', validators=[DataRequired()])
+    latitude = FloatField('Latitude', validators=[DataRequired()])
+    longitude = FloatField('Longitude', validators=[DataRequired()])
     images = FileField('Tour Images', validators=[FileAllowed(['jpg', 'png'], 'Images only!')], render_kw={"multiple": True})  # Поле для декількох зображень
     submit = SubmitField('Save Tour')
-
-
-
-
 
 
 class DiscountForm(FlaskForm):

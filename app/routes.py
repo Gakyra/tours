@@ -1,6 +1,6 @@
 import os
 import re
-from flask import render_template, redirect, url_for, request, jsonify, flash
+from flask import render_template, redirect, url_for, request, jsonify, flash, send_from_directory
 from flask_login import login_user, logout_user, current_user, login_required
 from datetime import datetime
 from .config import app, db
@@ -9,6 +9,8 @@ from .forms import RegistrationForm, LoginForm, BookingForm, TourForm, DiscountF
 from .views import get_tour_details, is_tour_available, get_upcoming_tours, calculate_discount
 from .image import save_image
 from werkzeug.utils import secure_filename
+
+
 
 
 __all__ = (
@@ -27,6 +29,9 @@ __all__ = (
     'profile',
 )
 
+@app.route('/uploads/<filename>')
+def uploaded_file(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 # Головна сторінка
 @app.route('/')
@@ -146,7 +151,11 @@ def tour_discount(tour_id):
 
 
 
+
 # Бронювання туру
+
+from datetime import datetime
+
 @app.route('/tour/<int:tour_id>/book', methods=['GET', 'POST'])
 @login_required
 def book_tour(tour_id):
@@ -155,27 +164,26 @@ def book_tour(tour_id):
     if request.method == 'POST' and form.validate_on_submit():
         date = form.date.data
         people = form.number_of_people.data
-        print(f"Requested spots: {people}, Available spots: {tour.available_spots}")
         if not tour.is_available(people):
             flash('Недостатньо вільних місць для бронювання!', 'danger')
             return redirect(url_for('book_tour', tour_id=tour_id))
-        total_price = tour.price * people  # Розрахунок загальної ціни
+        total_price = tour.price * people
         booking = Booking(
             user_id=current_user.id,
             tour_id=tour_id,
             number_of_people=people,
-            date=date,
+            date=date,  # Використовуємо datetime об'єкт напряму
             total_price=total_price
         )
         tour.available_spots -= people
         db.session.add(booking)
         db.session.commit()
         flash(f'Бронювання успішне! Загальна ціна: {total_price}', 'success')
-        return redirect(url_for('index'))
+        return redirect(url_for('profile'))
     elif request.method == 'GET':
-        form.date.data = tour.date.date()
-    print(f"Form errors: {form.errors}")
+        form.date.data = tour.date
     return render_template('book_tour.html', form=form, tour=tour)
+
 
 
 
@@ -194,13 +202,16 @@ def manage_tours():
             price=form.price.data,
             date=form.date.data,
             available_spots=form.available_spots.data,
+            latitude=form.latitude.data,
+            longitude=form.longitude.data,
         )
+        db.session.add(new_tour)
+        db.session.commit()
         if form.images.data:
             for image in request.files.getlist('images'):
                 filename = save_image(image, app.config['UPLOAD_FOLDER'])
-                new_image = TourImage(filename=filename, tour=new_tour)
+                new_image = TourImage(filename=filename, tour_id=new_tour.id)
                 db.session.add(new_image)
-        db.session.add(new_tour)
         db.session.commit()
         flash('Тур успішно додано!', 'success')
         return redirect(url_for('manage_tours'))
@@ -211,7 +222,6 @@ def manage_tours():
     tours = Tour.query.all()
     return render_template('manage_tours.html', form=form, tours=tours)
 
-#Редагування туру
 @app.route('/tour/<int:tour_id>/edit', methods=['GET', 'POST'])
 @login_required
 def edit_tour(tour_id):
@@ -226,10 +236,13 @@ def edit_tour(tour_id):
         tour.price = form.price.data
         tour.date = form.date.data
         tour.available_spots = form.available_spots.data
+        tour.latitude = form.latitude.data
+        tour.longitude = form.longitude.data
+        db.session.commit()
         if form.images.data:
             for image in request.files.getlist('images'):
                 filename = save_image(image, app.config['UPLOAD_FOLDER'])
-                new_image = TourImage(filename=filename, tour=tour)
+                new_image = TourImage(filename=filename, tour_id=tour.id)
                 db.session.add(new_image)
         db.session.commit()
         flash('Тур успішно оновлено!', 'success')
@@ -238,25 +251,30 @@ def edit_tour(tour_id):
 
 
 
+
 # Видалення туру
 @app.route('/tour/<int:tour_id>/delete', methods=['POST'])
 @login_required
 def delete_tour(tour_id):
-    tour = Tour.query.get_or_404(tour_id)
     if not current_user.is_admin:
         flash('Доступ заборонено: тільки адміністратори можуть видаляти тури.', 'danger')
-        return redirect(url_for('manage_tours'))
-    bookings = Booking.query.filter_by(tour_id=tour.id).all()
-    for booking in bookings:
-        db.session.delete(booking)
-    images = TourImage.query.filter_by(tour_id=tour.id).all()
-    for image in images:
-        os.remove(os.path.join(app.config['UPLOAD_FOLDER'], image.filename))
-        db.session.delete(image)
+        return redirect(url_for('index'))
+    tour = Tour.query.get_or_404(tour_id)
+    if tour.images:
+        for image in tour.images:
+            image_path = os.path.join(app.config['UPLOAD_FOLDER'], image.filename)
+            if os.path.exists(image_path):
+                os.remove(image_path)
+            else:
+                print(f"File not found: {image_path}")
+            db.session.delete(image)
     db.session.delete(tour)
     db.session.commit()
-    flash('Тур успішно видалено.', 'success')
+    flash('Тур успішно видалено!', 'success')
     return redirect(url_for('manage_tours'))
+
+
+
 
 
 @app.route('/tour_image/<int:image_id>/delete', methods=['POST'])
@@ -289,14 +307,58 @@ def calendar():
     return render_template('calendar.html')
 
 
+from datetime import datetime
+
 @app.route('/api/get_tour_dates', methods=['GET'])
 def get_tour_dates():
     tours = Tour.query.all()
     events = []
     for tour in tours:
-        events.append({
-            'title': tour.name,
-            'start': tour.date.strftime('%Y-%m-%d'),
+        try:
+            # Перевіримо формат дати та виведемо його у консоль
+            print(f'Tour {tour.name} has date: {tour.date}')
+            start_date = datetime.strptime(tour.date.isoformat(), '%Y-%m-%dT%H:%M:%S')
+            events.append({
+                'title': tour.name,
+                'start': start_date.isoformat(),
+                'url': url_for('tour_details', tour_id=tour.id)
+            })
+        except Exception as e:
+            print(f'Error with tour {tour.name} date: {tour.date}, Error: {e}')
+    return jsonify(events)
+
+
+
+
+
+
+
+@app.route('/map')
+def map_view():
+    return render_template('map.html')
+
+@app.route('/api/get_tour_locations', methods=['GET'])
+def get_tour_locations():
+    tours = Tour.query.all()
+    locations = []
+    for tour in tours:
+        locations.append({
+            'name': tour.name,
+            'description': tour.description,
+            'lat': tour.latitude,
+            'lon': tour.longitude,
             'url': url_for('tour_details', tour_id=tour.id)
         })
-    return jsonify(events)
+    return jsonify(locations)
+
+
+
+@app.route('/admin/bookings', methods=['GET'])
+@login_required
+def admin_bookings():
+    if not current_user.is_admin:
+        flash('Доступ заборонено: тільки адміністратори можуть переглядати бронювання.', 'danger')
+        return redirect(url_for('index'))
+    bookings = Booking.query.all()
+    return render_template('admin_bookings.html', bookings=bookings)
+

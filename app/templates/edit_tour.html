@@ -16,6 +16,17 @@
                 {% endfor %}
             {% endif %}
         {% endwith %}
+
+        {% if form.errors %}
+            <div class="alert alert-danger">
+                <ul>
+                {% for field, errors in form.errors.items() %}
+                    <li>{{ field }}: {{ errors }}</li>
+                {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+
         <form method="POST" enctype="multipart/form-data">
             {{ form.hidden_tag() }}
             <div class="form-group">
@@ -39,14 +50,19 @@
                 {{ form.available_spots(class="form-control", required=True) }}
             </div>
             <div class="form-group">
+                {{ form.latitude.label(class="form-label") }}
+                {{ form.latitude(class="form-control", required=True, id="latitude") }}
+            </div>
+            <div class="form-group">
+                {{ form.longitude.label(class="form-label") }}
+                {{ form.longitude(class="form-control", required=True, id="longitude") }}
+            </div>
+            <div class="form-group">
                 {{ form.images.label(class="form-label") }}
-                {{ form.images(class="form-control-file", multiple=True) }} <!-- Підтримка декількох зображень -->
+                {{ form.images(class="form-control-file", multiple=True) }}
                 {% for image in tour.images %}
                     <div class="mt-2">
-                        <img src="{{ url_for('static', filename='uploads/' ~ image.filename) }}" alt="Tour Image" class="img-thumbnail" width="200">
-                        <form action="{{ url_for('delete_tour_image', image_id=image.id) }}" method="POST" style="display:inline-block;">
-                            <button class="btn btn-danger btn-sm">Delete</button>
-                        </form>
+                        <img src="{{ url_for('uploaded_file', filename=image.filename) }}" alt="Tour Image" class="img-thumbnail" width="200">
                     </div>
                 {% endfor %}
             </div>
@@ -59,5 +75,10 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        document.querySelector('form').addEventListener('submit', function(event) {
+            console.log('Form is being submitted!');
+        });
+    </script>
 </body>
 </html>

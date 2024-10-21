@@ -13,6 +13,7 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav">
                 <li class="nav-item"><a class="nav-link" href="{{ url_for('index') }}">Головна</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('calendar') }}">Календар</a></li> <!-- Додаємо посилання на календар -->
                 {% if current_user.is_authenticated %}
                     <li class="nav-item"><a class="nav-link" href="{{ url_for('profile') }}">Профіль</a></li>
                     <li class="nav-item"><a class="nav-link" href="{{ url_for('logout') }}">Вихід</a></li>
@@ -29,7 +30,7 @@
             {% if tours %}
                 <p>Тури знайдені: {{ tours|length }}</p>
                 {% for tour in tours %}
-                    <div class="col-md-6"> <!-- Робимо картки більшими -->
+                    <div class="col-md-6">
                         <div class="card mb-4">
                             <div class="card-body">
                                 <h5 class="card-title">{{ tour.name }}</h5>
@@ -86,5 +87,16 @@
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.js'></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var calendarEl = document.getElementById('calendar');
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                events: '/api/get_tour_dates'
+            });
+            calendar.render();
+        });
+    </script>
 </body>
 </html>

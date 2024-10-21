@@ -282,3 +282,21 @@ def profile():
     tours = [booking.tour for booking in bookings]
     return render_template('profile.html', tours=tours)
 
+
+#Календар
+@app.route('/calendar')
+def calendar():
+    return render_template('calendar.html')
+
+
+@app.route('/api/get_tour_dates', methods=['GET'])
+def get_tour_dates():
+    tours = Tour.query.all()
+    events = []
+    for tour in tours:
+        events.append({
+            'title': tour.name,
+            'start': tour.date.strftime('%Y-%m-%d'),
+            'url': url_for('tour_details', tour_id=tour.id)
+        })
+    return jsonify(events)

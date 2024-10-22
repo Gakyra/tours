@@ -9,7 +9,7 @@ from .forms import RegistrationForm, LoginForm, BookingForm, TourForm, DiscountF
 from .views import get_tour_details, is_tour_available, get_upcoming_tours, calculate_discount
 from .image import save_image
 from werkzeug.utils import secure_filename
-
+from app.forms import SearchForm
 
 
 
@@ -34,11 +34,29 @@ def uploaded_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 # Головна сторінка
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 def index():
-    tours = get_upcoming_tours()
-    print(f"Tours in index: {tours}")
-    return render_template('index.html', tours=tours)
+    form = SearchForm()
+    tours = Tour.query
+
+    if form.validate_on_submit():
+        search = form.search.data
+        filters = []
+
+        if form.date.data:
+            filters.append(Tour.date == form.date.data)
+        if form.price_min.data:
+            filters.append(Tour.price >= form.price_min.data)
+        if form.price_max.data:
+            filters.append(Tour.price <= form.price_max.data)
+        if search:
+            tours = tours.filter(Tour.name.contains(search) | Tour.description.contains(search))
+
+        tours = tours.filter(*filters).all()
+    else:
+        tours = tours.all()
+
+    return render_template('index.html', tours=tours, form=form)
 
 
 # Реєстрація
@@ -154,6 +172,8 @@ def tour_discount(tour_id):
 
 # Бронювання туру
 
+
+
 from datetime import datetime
 
 @app.route('/tour/<int:tour_id>/book', methods=['GET', 'POST'])
@@ -161,8 +181,9 @@ from datetime import datetime
 def book_tour(tour_id):
     tour = Tour.query.get_or_404(tour_id)
     form = BookingForm()
+    total_price = None
     if request.method == 'POST' and form.validate_on_submit():
-        date = form.date.data
+        date = form.date.data  # Використовуємо формату datetime
         people = form.number_of_people.data
         if not tour.is_available(people):
             flash('Недостатньо вільних місць для бронювання!', 'danger')
@@ -172,7 +193,7 @@ def book_tour(tour_id):
             user_id=current_user.id,
             tour_id=tour_id,
             number_of_people=people,
-            date=date,  # Використовуємо datetime об'єкт напряму
+            date=date,  # Використовуємо datetime об'єкт
             total_price=total_price
         )
         tour.available_spots -= people
@@ -181,8 +202,11 @@ def book_tour(tour_id):
         flash(f'Бронювання успішне! Загальна ціна: {total_price}', 'success')
         return redirect(url_for('profile'))
     elif request.method == 'GET':
-        form.date.data = tour.date
-    return render_template('book_tour.html', form=form, tour=tour)
+        form.date.data = tour.date  # Передаємо datetime об'єкт
+    return render_template('book_tour.html', form=form, tour=tour, total_price=total_price)
+
+
+
 
 
 

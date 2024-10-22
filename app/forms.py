@@ -1,8 +1,9 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, IntegerField, FloatField, DateField,DateTimeLocalField, DateTimeField, FileField, TextAreaField
+from wtforms import StringField, PasswordField, SubmitField, IntegerField, FloatField, DateField,DateTimeLocalField, DateTimeField, FileField, TextAreaField, DecimalField
 from wtforms.validators import DataRequired, Length, EqualTo, ValidationError, Email, NumberRange
 from flask_wtf.file import FileAllowed
 from .models import User
+from wtforms.validators import Optional
 import re
 
 
@@ -41,7 +42,7 @@ class LoginForm(FlaskForm):
 
 
 class BookingForm(FlaskForm):
-    date = DateTimeLocalField('Дата', format='%Y-%m-%dT%H:%M', validators=[DataRequired()])  # Використовуємо DateTimeLocalField
+    date = DateTimeField('Дата', format='%Y-%m-%dT%H:%M', validators=[DataRequired()])  # Використовуємо DateTimeField з потрібним форматом
     number_of_people = IntegerField('Кількість людей', validators=[DataRequired()])
     submit = SubmitField('Забронювати')
 
@@ -61,3 +62,13 @@ class TourForm(FlaskForm):
 class DiscountForm(FlaskForm):
     discount_percentage = IntegerField('Discount Percentage', validators=[DataRequired(), NumberRange(min=0, max=100)])
     submit = SubmitField('Apply Discount')
+
+
+
+
+class SearchForm(FlaskForm):
+    search = StringField('Пошук', validators=[Optional()])
+    date = DateField('Дата', format='%Y-%m-%d', validators=[Optional()])
+    price_min = DecimalField('Мінімальна ціна', validators=[Optional()])
+    price_max = DecimalField('Максимальна ціна', validators=[Optional()])
+    submit = SubmitField('Шукати')

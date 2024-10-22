@@ -8,7 +8,28 @@
     <title>Забронювати Тур</title>
 </head>
 <body>
-    <div class="container mt-5">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="{{ url_for('index') }}">Tours GlobeBook</a>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('index') }}">Головна</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('calendar') }}">Календар</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('map_view') }}">Мапа</a></li>
+                {% if current_user.is_authenticated %}
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('profile') }}">Профіль</a></li>
+                    {% if current_user.is_admin %}
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('manage_tours') }}">Керування турами</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('admin_bookings') }}">Бронювання</a></li>
+                    {% endif %}
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('logout') }}">Вихід</a></li>
+                {% else %}
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('login') }}">Вхід</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('register') }}">Реєстрація</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
+    <div class="container mt-4">
         <h1>Забронювати тур: {{ tour.name }}</h1>
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
@@ -21,7 +42,7 @@
             {{ form.hidden_tag() }}
             <div class="form-group">
                 {{ form.date.label(class="form-label") }}
-                {{ form.date(class="form-control", type="datetime-local", required=True) }}  <!-- Додано type="datetime-local" -->
+                {{ form.date(class="form-control", type="datetime-local", required=True) }}
             </div>
             <div class="form-group">
                 {{ form.number_of_people.label(class="form-label") }}
@@ -30,6 +51,12 @@
             <div class="form-group">
                 {{ form.submit(class="btn btn-primary") }}
             </div>
+        </form>
+            {% if total_price %}
+                <div class="alert alert-info" role="alert">
+                    Загальна ціна: {{ '%.2f' % total_price }} ₴
+                </div>
+            {% endif %}
         </form>
     </div>
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>

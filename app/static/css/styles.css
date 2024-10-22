@@ -14,3 +14,47 @@ body {
 .form-control {
     margin-bottom: 10px;
 }
+
+.navbar-brand {
+    font-weight: bold;
+}
+
+h1 {
+    margin-bottom: 20px;
+}
+
+.card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.card-title {
+    font-size: 1.25rem;
+    font-weight: bold;
+}
+
+.carousel-item img {
+    max-height: 600px;  /* Збільшили висоту зображень */
+    object-fit: cover;
+}
+
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+    background-color: #000;
+    border-radius: 50%;
+    padding: 10px;
+}
+
+.tour-img {
+    max-height: 700px;
+    object-fit: cover;
+}
+
+.card-columns {
+    column-count: 3;
+}
+
+.text-center {
+    text-align: center;
+}

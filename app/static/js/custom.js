@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", function() {
         form.addEventListener('submit', function(event) {
             const confirmDelete = confirm("Ви впевнені, що хочете видалити цей тур?");
             if (!confirmDelete) {
-                event.preventDefault(); // Скасувати відправлення форми, якщо користувач не підтвердив
+                event.preventDefault();
             }
         });
     });

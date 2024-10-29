@@ -42,7 +42,7 @@ class LoginForm(FlaskForm):
 
 
 class BookingForm(FlaskForm):
-    date = DateTimeField('Дата', format='%Y-%m-%dT%H:%M', validators=[DataRequired()])  # Використовуємо DateTimeField з потрібним форматом
+    date = DateTimeField('Дата', format='%Y-%m-%dT%H:%M', validators=[DataRequired()])
     number_of_people = IntegerField('Кількість людей', validators=[DataRequired()])
     submit = SubmitField('Забронювати')
 

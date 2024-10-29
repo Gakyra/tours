@@ -172,10 +172,6 @@ def tour_discount(tour_id):
 
 # Бронювання туру
 
-
-
-from datetime import datetime
-
 @app.route('/tour/<int:tour_id>/book', methods=['GET', 'POST'])
 @login_required
 def book_tour(tour_id):
@@ -204,9 +200,6 @@ def book_tour(tour_id):
     elif request.method == 'GET':
         form.date.data = tour.date  # Передаємо datetime об'єкт
     return render_template('book_tour.html', form=form, tour=tour, total_price=total_price)
-
-
-
 
 
 
@@ -298,9 +291,7 @@ def delete_tour(tour_id):
     return redirect(url_for('manage_tours'))
 
 
-
-
-
+# Видалення зображення туру
 @app.route('/tour_image/<int:image_id>/delete', methods=['POST'])
 @login_required
 def delete_tour_image(image_id):
